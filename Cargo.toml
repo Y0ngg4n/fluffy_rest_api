@@ -17,7 +17,7 @@ serde_json = "1.0.64"
 scylla = "0.1.0"
 tokio = { version = "1.1.0", features = ["full"] }
 futures = "0.3.6"
-uuid = "0.8.1"
+uuid = { version = "0.8", features = ["serde", "v4"] }
 bigdecimal = "0.2.0"
 num-bigint = "0.3"
 tracing = "0.1.25"
@@ -29,3 +29,4 @@ dotenv = "0.15.0"
 r2d2 = "0.8.8"
 argon2 = "0.2.0"
 rand_core = { version = "0.6.2", features = ["std"] }
+jsonwebtoken = "8.0.0-beta.2"

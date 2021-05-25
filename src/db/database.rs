@@ -46,13 +46,13 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
         .await?;
     session
         .query(
-            "CREATE TABLE IF NOT EXISTS fluffy_board.account (\
-            id UUID primary key,\
-            name text,\
+            "CREATE TABLE IF NOT EXISTS fluffy_board.account ( \
+            id UUID, \
+            name text, \
             email text, \
             password text,\
             created timestamp, \
-            )",
+            PRIMARY KEY(id, email))",
             &[],
         )
         .await?;
