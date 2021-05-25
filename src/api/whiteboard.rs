@@ -1,9 +1,8 @@
 use actix_web::web::{Data, Json, Path};
 use actix_web::{web, HttpResponse, post};
-use crate::response::Response;
 use serde::{Deserialize, Serialize};
 
-use crate::constants::{APPLICATION_JSON};
+// use constants;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Whiteboard {
@@ -36,6 +35,6 @@ impl WhiteboardRequest {
 #[post("/whiteboard/create")]
 pub async fn create(whiteboard_req: Json<WhiteboardRequest>) -> HttpResponse {
     HttpResponse::Ok()
-        .content_type(APPLICATION_JSON)
+        // .content_type(constants::APPLICATION_JSON)
         .json(Whiteboard{id: String::from("WhiteboardTest") })
 }

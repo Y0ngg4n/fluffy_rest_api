@@ -18,7 +18,7 @@ pub async fn connect() -> Result<Session, Box<dyn Error>> {
     Ok(session)
 }
 
-pub async fn create_keyspace_and_tables(session: Session) -> Result<(), Box<dyn Error>>{
+pub async fn create_keyspace_and_tables(session: &Session) -> Result<(), Box<dyn Error>>{
     println!("Creating Keyspace and tables...");
     session
         .query(
@@ -38,6 +38,18 @@ pub async fn create_keyspace_and_tables(session: Session) -> Result<(), Box<dyn 
             password text,\
             created timestamp, \
             retention timestamp \
+            )",
+            &[],
+        )
+        .await?;
+    session
+        .query(
+            "CREATE TABLE IF NOT EXISTS fluffy_board.account (\
+            id UUID primary key,\
+            name text,\
+            email text, \
+            password text,\
+            created timestamp, \
             )",
             &[],
         )
