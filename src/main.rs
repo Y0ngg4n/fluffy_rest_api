@@ -8,6 +8,7 @@ use futures::TryFutureExt;
 use scylla::Session;
 
 use db::database;
+use std::sync::Arc;
 
 mod db;
 mod api;
@@ -21,16 +22,17 @@ async fn main() ->  Result<(), Box<dyn Error>>{
 
     // Database
     let session: Session = database::connect().await.expect("Could not connect to Database!");
-    database::create_keyspace_and_tables(&session).await.expect("Could not create Keyspace and \
-    Tables!");
-    start_webserver(&session);
+    let session_arc= Arc::new(session);
+    database::create_keyspace_and_tables(&session_arc).await.expect("Could not create Keyspace and \
+    // // Tables!");
+    start_webserver(&session_arc);
 
     Ok(())
 }
 #[actix_web::main]
-async fn start_webserver(session: &'static Session) -> std::io::Result<()> {
+async fn start_webserver(session: &'static Arc<Session>) -> std::io::Result<()> {
     // Starting Webserver
-    HttpServer::new(|| {
+    HttpServer::new(move || {
         App::new()
             .data(session)
 // enable logger - always register actix-web Logger middleware last

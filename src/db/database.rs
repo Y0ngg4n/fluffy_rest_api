@@ -1,6 +1,7 @@
 use scylla::{IntoTypedRows, Session, SessionBuilder, QueryResult};
 use std::error::Error;
 use scylla::transport::errors::{NewSessionError, QueryError};
+use std::sync::Arc;
 
 pub async fn connect() -> Result<Session, Box<dyn Error>> {
     println!("Connecting to scylla db ...");
@@ -18,8 +19,9 @@ pub async fn connect() -> Result<Session, Box<dyn Error>> {
     Ok(session)
 }
 
-pub async fn create_keyspace_and_tables(session: &Session) -> Result<(), Box<dyn Error>>{
+pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<(), Box<dyn Error>>{
     println!("Creating Keyspace and tables...");
+    let session = Arc::clone(session_arc);
     session
         .query(
             "CREATE KEYSPACE IF NOT EXISTS fluffy_board WITH REPLICATION = \

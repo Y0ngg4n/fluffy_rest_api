@@ -7,6 +7,7 @@ use argon2::{
     Argon2
 };
 use rand_core::OsRng;
+use std::sync::Arc;
 
 #[get("/account/users")]
 pub async fn get_users() -> impl Responder {
@@ -19,7 +20,7 @@ pub async fn get_user_by_id() -> impl Responder {
 }
 
 #[post("/account/add")]
-pub async fn add_user(user: web::Json<InputUser>, session: web::Data<Session>) -> impl Responder {
+pub async fn add_user(user: web::Json<InputUser>, session: web::Data<Arc<Session>>) -> impl Responder {
 
     // account::add_user(session,NewUser{
     //     name: user.name,
