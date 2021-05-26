@@ -4,6 +4,7 @@ use uuid::Uuid;
 use scylla::IntoTypedRows;
 use scylla::macros::FromRow;
 use scylla::frame::response::cql_to_rust::FromRow;
+use chrono::Duration;
 
 #[derive(Serialize, Deserialize)]
 pub struct LoginUser {
@@ -12,13 +13,22 @@ pub struct LoginUser {
 }
 
 // #[derive(Serialize, Deserialize)]
-#[derive(FromRow)]
 pub struct NewUser {
     pub uuid: Uuid,
     pub name: String,
     pub email: String,
     pub password: String,
     pub created: Timestamp,
+}
+
+
+#[derive(FromRow)]
+pub struct ReadUser {
+    pub uuid: Uuid,
+    pub name: String,
+    pub email: String,
+    pub password: String,
+    pub created: Duration,
 }
 
 #[derive(Serialize, Deserialize)]

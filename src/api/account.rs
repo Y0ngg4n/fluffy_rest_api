@@ -1,5 +1,5 @@
 use actix_web::{get, post, Responder, HttpRequest, web, HttpResponse};
-use crate::db::models::user::{InputUser, NewUser, LoginUser};
+use crate::db::models::user::{InputUser, NewUser, LoginUser, ReadUser};
 use crate::db::account;
 use scylla::{Session, IntoTypedRows};
 use argon2::{
@@ -21,6 +21,7 @@ use actix_web::client::HttpError;
 use actix_web::{http::StatusCode};
 use futures::future::{err, ok, Ready};
 use scylla::macros::FromRow;
+use scylla::cql_to_rust::FromRowError;
 
 #[derive(Serialize, Deserialize)]
 struct LoginResponse {
@@ -35,8 +36,8 @@ pub async fn login(user: web::Json<LoginUser>, session: web::Data<Arc<Session>>)
         if rows.is_empty() {
             HttpResponse::Conflict().body("User does not exist")
         } else {
-            let row = rows.into_typed::<NewUser>().next().unwrap();
-            let read_row:NewUser = row.unwrap();
+            let row = rows.into_typed::<ReadUser>().next();
+            let read_row = row.unwrap().unwrap();
             let hashed_password = read_row.password;
             println!("{}", hashed_password);
             // Argon2 with default params (Argon2id v19)
