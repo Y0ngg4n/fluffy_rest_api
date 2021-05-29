@@ -24,11 +24,11 @@ pub struct NewUser {
 
 #[derive(FromRow)]
 pub struct ReadUser {
-    pub uuid: Uuid,
-    pub name: String,
+    pub id: Uuid,
     pub email: String,
-    pub password: String,
     pub created: Duration,
+    pub name: String,
+    pub password: String,
 }
 
 #[derive(Serialize, Deserialize)]

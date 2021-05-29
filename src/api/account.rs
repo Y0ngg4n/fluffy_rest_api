@@ -39,14 +39,14 @@ pub async fn login(user: web::Json<LoginUser>, session: web::Data<Arc<Session>>)
             let row = rows.into_typed::<ReadUser>().next();
             let read_row = row.unwrap().unwrap();
             let hashed_password = read_row.password;
-            println!("{}", hashed_password);
+            println!("{}", &hashed_password);
             // Argon2 with default params (Argon2id v19)
             let argon2 = Argon2::default();
             // Verify password against PHC string
             let parsed_hash = PasswordHash::new(&hashed_password).unwrap();
             if argon2.verify_password(user.password.as_ref(),
                                       &parsed_hash).is_ok() {
-                let token = create_jwt(read_row.uuid.to_string());
+                let token = create_jwt(read_row.id.to_string());
                 HttpResponse::Ok().json(LoginResponse {
                     auth_token: token.to_string(),
                     name: read_row.name,
