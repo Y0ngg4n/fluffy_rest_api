@@ -1,11 +1,14 @@
 use actix_web::error::ErrorUnauthorized;
 use actix_web::{dev, Error, FromRequest, HttpRequest};
 use futures::future::{err, ok, Ready};
-use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation, EncodingKey};
+use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation, EncodingKey, TokenData};
 use std::env;
 use crate::utils::jwt;
+use crate::utils::jwt::AccountToken;
 
-pub struct AuthorizationService;
+pub struct AuthorizationService {
+    pub(crate) token: TokenData<AccountToken>
+}
 
 impl FromRequest for AuthorizationService {
     type Error = Error;
@@ -20,13 +23,12 @@ impl FromRequest for AuthorizationService {
                 let token = _split[1].trim();
                 let _var = env::var("JWT_SECRET").unwrap();
                 let key = _var.as_bytes();
-                println!("{}",_var);
                 match decode::<jwt::AccountToken>(
                     token,
                     &DecodingKey::from_secret(key),
                     &Validation::new(Algorithm::HS512),
                 ) {
-                    Ok(_token) => ok(AuthorizationService),
+                    Ok(_token) => ok(AuthorizationService{token: _token}),
                     Err(_e) => err(ErrorUnauthorized(_e.to_string())),
                 }
             }

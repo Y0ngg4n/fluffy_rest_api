@@ -22,6 +22,7 @@ use actix_web::{http::StatusCode};
 use futures::future::{err, ok, Ready};
 use scylla::macros::FromRow;
 use scylla::cql_to_rust::FromRowError;
+use crate::db::account::delete_user_by_id;
 
 #[derive(Serialize, Deserialize)]
 struct LoginResponse {
@@ -80,7 +81,7 @@ pub async fn register(user: web::Json<InputUser>, session: web::Data<Arc<Session
         assert!(argon2.verify_password(user.password.as_ref(), &parsed_hash).is_ok());
         let uid: Uuid = Uuid::new_v4();
         let new_user = NewUser {
-            uuid: uid,
+            id: uid,
             name: user.name.clone(),
             password: password_hash,
             email: user.email.clone(),
@@ -94,9 +95,11 @@ pub async fn register(user: web::Json<InputUser>, session: web::Data<Arc<Session
     }
 }
 
-#[post("/account/delete")]
-pub async fn delete_user() -> impl Responder {
-    format!("hello from delete user")
+#[post("/delete")]
+pub async fn delete(auth: AuthorizationService, session: web::Data<Arc<Session>>) -> impl Responder {
+    let uuid = Uuid::parse_str(auth.token.claims.sub.as_str()).unwrap();
+    delete_user_by_id(&session, uuid).await.expect("Could not delete Account");
+    HttpResponse::Ok().body("Account deleted")
 }
 
 #[post("/protectedRoute")]
@@ -108,5 +111,6 @@ async fn protected(_: AuthorizationService) -> HttpResponse {
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(register);
     cfg.service(login);
+    cfg.service(delete);
     cfg.service(protected);
 }

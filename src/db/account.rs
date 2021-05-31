@@ -13,7 +13,7 @@ pub async fn add_user(session_arc: &Arc<Session>, user: NewUser) -> Result<(), B
         .query(
             "INSERT INTO fluffy_board.account (id, name, email, password, created) \
             VALUES (?, ?, ?, ?, ?);",
-            (user.uuid, user.name, user.email, user.password, user.created),
+            (user.id, user.name, user.email, user.password, user.created),
         )
         .await?;
     Ok(())
@@ -27,4 +27,15 @@ pub async fn get_user_by_email(session_arc: &Arc<Session>, email: String) -> Opt
             (email,),
         )
         .await.ok()?.rows
+}
+
+pub async fn delete_user_by_id(session_arc: &Arc<Session>, id: Uuid) -> Result<(), Box<dyn Error>>{
+    let session = Arc::clone(session_arc);
+    session
+        .query(
+            "DELETE FROM fluffy_board.account WHERE id=?;",
+            (id,),
+        )
+        .await?;
+    Ok(())
 }

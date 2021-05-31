@@ -5,8 +5,9 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct AccountToken {
-    sub: String,
-    exp: usize,
+    pub(crate) iss: String,
+    pub(crate) sub: String,
+    pub(crate) exp: usize,
 }
 
 pub fn create_jwt(uuid: String) -> String {
@@ -16,6 +17,7 @@ pub fn create_jwt(uuid: String) -> String {
         .timestamp();
 
     let account_token = AccountToken {
+        iss: String::from("fluffy_board"),
         sub: uuid,
         exp: expiration as usize,
     };

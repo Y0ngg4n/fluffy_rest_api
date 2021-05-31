@@ -14,7 +14,7 @@ pub struct LoginUser {
 
 // #[derive(Serialize, Deserialize)]
 pub struct NewUser {
-    pub uuid: Uuid,
+    pub id: Uuid,
     pub name: String,
     pub email: String,
     pub password: String,
