@@ -1,5 +1,5 @@
 use actix_web::{get, post, Responder, HttpRequest, web, HttpResponse};
-use crate::db::models::user::{InputUser, NewUser, LoginUser, ReadUser};
+use crate::db::models::user::{InputUser, NewUser, LoginUser, ReadUser, UpdateNameInput};
 use crate::db::account;
 use scylla::{Session, IntoTypedRows};
 use argon2::{
@@ -22,14 +22,15 @@ use actix_web::{http::StatusCode};
 use futures::future::{err, ok, Ready};
 use scylla::macros::FromRow;
 use scylla::cql_to_rust::FromRowError;
-use crate::db::account::delete_user_by_id;
+use crate::db::account::{delete_user_by_id, update_username_by_id};
 
 #[derive(Serialize, Deserialize)]
 struct LoginResponse {
+    id: String,
     auth_token: String,
     name: String,
+    email: String,
 }
-
 
 #[post("/login")]
 pub async fn login(user: web::Json<LoginUser>, session: web::Data<Arc<Session>>) -> impl Responder {
@@ -40,7 +41,6 @@ pub async fn login(user: web::Json<LoginUser>, session: web::Data<Arc<Session>>)
             let row = rows.into_typed::<ReadUser>().next();
             let read_row = row.unwrap().unwrap();
             let hashed_password = read_row.password;
-            println!("{}", &hashed_password);
             // Argon2 with default params (Argon2id v19)
             let argon2 = Argon2::default();
             // Verify password against PHC string
@@ -49,8 +49,10 @@ pub async fn login(user: web::Json<LoginUser>, session: web::Data<Arc<Session>>)
                                       &parsed_hash).is_ok() {
                 let token = create_jwt(read_row.id.to_string());
                 HttpResponse::Ok().json(LoginResponse {
+                    id: read_row.id.to_string(),
                     auth_token: token.to_string(),
                     name: read_row.name,
+                    email: read_row.email,
                 })
             } else { HttpResponse::BadRequest().body("Wrong Password") }
         }
@@ -61,6 +63,7 @@ pub async fn login(user: web::Json<LoginUser>, session: web::Data<Arc<Session>>)
 
 #[derive(Serialize, Deserialize)]
 struct RegisterResponse {
+    id: String,
     auth_token: String,
 }
 
@@ -90,6 +93,7 @@ pub async fn register(user: web::Json<InputUser>, session: web::Data<Arc<Session
         let token = create_jwt(uid.to_string());
         account::add_user(&session, new_user).await.expect("Cant add User");
         HttpResponse::Ok().json(RegisterResponse {
+            id: uid.to_string(),
             auth_token: token.to_string()
         })
     }
@@ -102,9 +106,17 @@ pub async fn delete(auth: AuthorizationService, session: web::Data<Arc<Session>>
     HttpResponse::Ok().body("Account deleted")
 }
 
-#[post("/protectedRoute")]
+#[post("/update/username")]
+pub async fn update_username(auth: AuthorizationService, user: web::Json<UpdateNameInput>, session: web::Data<Arc<Session>>) -> impl Responder {
+    let uuid = Uuid::parse_str(auth.token.claims.sub.as_str()).unwrap();
+    update_username_by_id(&session, user.name.clone(), uuid,
+                          user.email.clone()).await.expect("Could not delete Account");
+    HttpResponse::Ok().body("Username updated")
+}
+
+#[get("/check")]
 async fn protected(_: AuthorizationService) -> HttpResponse {
-    HttpResponse::Ok().json({ "test" })
+    HttpResponse::Ok().body("Success")
 }
 
 
@@ -112,5 +124,6 @@ pub fn init_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(register);
     cfg.service(login);
     cfg.service(delete);
+    cfg.service(update_username);
     cfg.service(protected);
 }

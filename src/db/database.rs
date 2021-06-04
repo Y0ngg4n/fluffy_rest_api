@@ -29,21 +29,6 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
             &[],
         )
         .await?;
-
-    session
-        .query(
-            "CREATE TABLE IF NOT EXISTS fluffy_board.whiteboard (\
-            id UUID primary key,\
-            name text,\
-            owner text,\
-            group text, \
-            password text,\
-            created timestamp, \
-            retention timestamp \
-            )",
-            &[],
-        )
-        .await?;
     session
         .query(
             "CREATE TABLE IF NOT EXISTS fluffy_board.account ( \
@@ -53,6 +38,33 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
             password text,\
             created timestamp, \
             PRIMARY KEY(id, email))",
+            &[],
+        )
+        .await?;
+    session
+        .query(
+            "CREATE TABLE IF NOT EXISTS fluffy_board.whiteboard (\
+            id UUID, \
+            owner UUID, \
+            directory UUID, \
+            name text,\
+            password text,\
+            created timestamp, \
+            PRIMARY KEY(id, owner, directory)
+            )",
+            &[],
+        )
+        .await?;
+    session
+        .query(
+            "CREATE TABLE IF NOT EXISTS fluffy_board.wb_directory (\
+            id UUID,\
+            owner UUID, \
+            parent UUID, \
+            filename TEXT, \
+            created timestamp, \
+            PRIMARY KEY(id, owner, parent)
+            )",
             &[],
         )
         .await?;

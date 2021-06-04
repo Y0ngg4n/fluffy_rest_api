@@ -1,4 +1,4 @@
 pub mod response;
-pub mod whiteboard;
+pub mod filemanager;
 mod constants;
 pub mod account;

@@ -37,3 +37,9 @@ pub struct InputUser{
     pub email: String,
     pub password: String,
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct UpdateNameInput{
+    pub name: String,
+    pub email: String,
+}
