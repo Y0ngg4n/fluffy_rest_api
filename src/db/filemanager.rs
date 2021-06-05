@@ -5,7 +5,7 @@ use std::sync::Arc;
 use scylla::frame::value::Timestamp;
 use uuid::Uuid;
 use scylla::frame::response::result::Row;
-use crate::db::models::file::{NewCreateDirectory, InputRenameDirectory, NewRenameDirectory, InputDeleteDirectory, NewCreateWhiteboard, NewRenameWhiteboard, InputDeleteWhiteboard, NewGetDirectory, NewGetWhiteboard, NewDeleteDirectory, ReadGetWhiteboard};
+use crate::db::models::file::{NewCreateDirectory, InputRenameDirectory, NewRenameDirectory, InputDeleteDirectory, NewCreateWhiteboard, NewRenameWhiteboard, InputDeleteWhiteboard, NewGetDirectory, NewGetWhiteboard, NewDeleteDirectory, ReadGetWhiteboard, NewDeleteWhiteboard};
 
 pub async fn get_directory(session_arc: &Arc<Session>, directory: NewGetDirectory) -> Option<Vec<Row>> {
     let session = Arc::clone(session_arc);
@@ -85,7 +85,7 @@ pub async fn rename_whiteboard(session_arc: &Arc<Session>, whiteboard: NewRename
     Ok(())
 }
 
-pub async fn delete_whiteboard(session_arc: &Arc<Session>, whiteboard: InputDeleteWhiteboard) -> Result<(), Box<dyn Error>> {
+pub async fn delete_whiteboard(session_arc: &Arc<Session>, whiteboard: NewDeleteWhiteboard) -> Result<(), Box<dyn Error>> {
     let session = Arc::clone(session_arc);
     session
         .query(

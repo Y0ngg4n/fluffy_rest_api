@@ -20,6 +20,7 @@ pub struct ReadGetDirectory{
     pub filename: String,
 }
 
+#[derive(Clone, Copy)]
 pub struct NewGetDirectory{
     pub owner: Uuid,
     pub parent: Uuid,
@@ -60,7 +61,6 @@ pub struct InputDeleteDirectory{
 
 pub struct NewDeleteDirectory{
     pub id: Uuid,
-    pub owner: Uuid,
 }
 
 
@@ -69,6 +69,7 @@ pub struct InputGetWhiteboard{
     pub directory: String,
 }
 
+#[derive(Clone, Copy)]
 pub struct NewGetWhiteboard{
     pub owner: Uuid,
     pub directory: Uuid,
@@ -116,5 +117,9 @@ pub struct NewRenameWhiteboard{
 
 #[derive(Serialize, Deserialize)]
 pub struct InputDeleteWhiteboard{
+    pub id: Uuid,
+}
+
+pub struct NewDeleteWhiteboard{
     pub id: Uuid,
 }

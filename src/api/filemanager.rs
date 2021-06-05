@@ -6,10 +6,13 @@ use crate::middlewares::auth::AuthorizationService;
 use std::sync::Arc;
 use scylla::{Session, IntoTypedRows};
 use uuid::Uuid;
-use crate::db::models::file::{InputCreateDirectory, NewCreateDirectory, InputRenameDirectory, NewRenameDirectory, InputDeleteDirectory, NewCreateWhiteboard, InputCreateWhiteboard, InputRenameWhiteboard, NewRenameWhiteboard, InputDeleteWhiteboard, NewGetDirectory, InputGetDirectory, ReadGetDirectory, InputGetWhiteboard, NewGetWhiteboard, ReadGetWhiteboard, NewDeleteDirectory};
+use crate::db::models::file::{InputCreateDirectory, NewCreateDirectory, InputRenameDirectory, NewRenameDirectory, InputDeleteDirectory, NewCreateWhiteboard, InputCreateWhiteboard, InputRenameWhiteboard, NewRenameWhiteboard, InputDeleteWhiteboard, NewGetDirectory, InputGetDirectory, ReadGetDirectory, InputGetWhiteboard, NewGetWhiteboard, ReadGetWhiteboard, NewDeleteDirectory, NewDeleteWhiteboard};
 use crate::db::filemanager::{create_directory, rename_directory, delete_directory, create_whiteboard, rename_whiteboard, delete_whiteboard, get_directory, get_whiteboard};
 use scylla::frame::value::Timestamp;
 use chrono::{Duration, Utc};
+use std::error::Error;
+use std::future::Future;
+use async_recursion::async_recursion;
 
 #[derive(Serialize, Deserialize)]
 struct GetDirectoryResponse {
@@ -87,23 +90,13 @@ pub async fn directory_rename(auth: AuthorizationService, directory: web::Json<I
 pub async fn directory_delete(auth: AuthorizationService, directory: web::Json<InputDeleteDirectory>,
                               session: web::Data<Arc<Session>>) -> impl Responder {
     let uuid = parse_own_uuid(auth);
-    let new_delete_dir = NewDeleteDirectory {
-        id: directory.id,
+    delete_sub_directory(&session, NewGetDirectory{
         owner: uuid,
-    };
-    delete_directory(&session, new_delete_dir).await.expect("Cant delete Directory");
-    let new_get_delete_whitebord = NewGetWhiteboard {
-        owner: uuid,
-        directory: directory.id,
-    };
-    if let Some(rows) = get_whiteboard(&session, new_get_delete_whitebord).await {
-        for row in rows.into_typed::<ReadGetWhiteboard>() {
-            let unwraped_row = row.unwrap();
-            delete_whiteboard(&session, InputDeleteWhiteboard {
-                id: unwraped_row.id,
-            }).await.expect("Cant delete Whiteboard");
-        }
-    }
+        parent: directory.id,
+    }).await;
+    delete_directory(&session, NewDeleteDirectory{
+        id: directory.id
+    }).await.expect("Could not delete directory");
     HttpResponse::Ok().body("Directory deleted")
 }
 
@@ -185,7 +178,9 @@ pub async fn whiteboard_rename(auth: AuthorizationService, whiteboard: web::Json
 #[post("/whiteboard/delete")]
 pub async fn whiteboard_delete(auth: AuthorizationService, whiteboard: web::Json<InputDeleteWhiteboard>,
                                session: web::Data<Arc<Session>>) -> impl Responder {
-    delete_whiteboard(&session, whiteboard.0).await.expect("Cant delete Whiteboard");
+    delete_whiteboard(&session, NewDeleteWhiteboard{
+        id: whiteboard.id
+    }).await.expect("Cant delete Whiteboard");
     HttpResponse::Ok().body("Whiteboard deleted")
 }
 
@@ -199,6 +194,33 @@ fn parse_dir_uuid(directory: String) -> Uuid {
         uuid = Uuid::parse_str(&directory).unwrap();
     }
     uuid
+}
+
+#[async_recursion]
+async fn delete_sub_directory(session: &Arc<Session>, new_get_delete_directory :NewGetDirectory) {
+    if let Some(rows) = get_directory(&session, new_get_delete_directory).await {
+        for row in rows.into_typed::<ReadGetDirectory>() {
+            let unwraped_row = row.unwrap();
+            delete_sub_directory(&session, NewGetDirectory{
+                parent: unwraped_row.id,
+                owner: new_get_delete_directory.owner
+            }).await;
+            delete_directory(&session, NewDeleteDirectory{
+                id: unwraped_row.id,
+            }).await.expect("Could not delete subdir");
+        }
+    }
+    if let Some(rows) = get_whiteboard(&session, NewGetWhiteboard{
+        directory: new_get_delete_directory.parent,
+        owner: new_get_delete_directory.owner
+    }).await {
+        for row in rows.into_typed::<ReadGetWhiteboard>() {
+            let unwraped_row = row.unwrap();
+            delete_whiteboard(&session, NewDeleteWhiteboard {
+                id: unwraped_row.id,
+            }).await.expect("Cant delete sub whiteboard");
+        }
+    }
 }
 
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
