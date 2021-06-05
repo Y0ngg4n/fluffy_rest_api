@@ -42,7 +42,7 @@ pub struct NewCreateDirectory{
 #[derive(Serialize, Deserialize)]
 pub struct InputRenameDirectory{
     pub id: Uuid,
-    pub parent: Uuid,
+    pub parent: String,
     pub filename: String,
 }
 
@@ -103,7 +103,7 @@ pub struct NewCreateWhiteboard{
 #[derive(Serialize, Deserialize)]
 pub struct InputRenameWhiteboard{
     pub id: Uuid,
-    pub directory: Uuid,
+    pub directory: String,
     pub name: String,
 }
 
