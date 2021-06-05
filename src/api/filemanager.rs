@@ -171,7 +171,7 @@ pub async fn whiteboard_rename(auth: AuthorizationService, whiteboard: web::Json
         directory: directory_uuid,
         name: whiteboard.name.clone(),
     };
-    rename_whiteboard(&session, renamed_whiteboard).await.expect("Cant rename Directory");
+    rename_whiteboard(&session, renamed_whiteboard).await.expect("Cant rename Whiteboard");
     HttpResponse::Ok().body("Directory renamed")
 }
 
