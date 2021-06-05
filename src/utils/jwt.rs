@@ -10,7 +10,7 @@ pub struct AccountToken {
     pub(crate) exp: usize,
 }
 
-pub fn create_jwt(uuid: String) -> String {
+pub fn create_auth_jwt(uuid: String) -> String {
     let expiration = Utc::now()
         .checked_add_signed(chrono::Duration::days(30))
         .expect("valid timestamp")
@@ -22,5 +22,6 @@ pub fn create_jwt(uuid: String) -> String {
         exp: expiration as usize,
     };
     let header = Header::new(Algorithm::HS512);
-    encode(&header, &account_token, &EncodingKey::from_secret(env::var("JWT_SECRET").unwrap().as_ref())).expect("Could not create JWT")
+    encode(&header, &account_token, &EncodingKey::from_secret(env::var("JWT_AUTH_SECRET").unwrap().as_ref())).expect("Could not create JWT")
 }
+

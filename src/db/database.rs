@@ -50,6 +50,8 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
             name text,\
             password text,\
             created timestamp, \
+            view_id UUID, \
+            edit_id UUID, \
             PRIMARY KEY(id, owner, directory)
             )",
             &[],

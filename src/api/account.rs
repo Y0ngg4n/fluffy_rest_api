@@ -12,7 +12,7 @@ use scylla::frame::value::Timestamp;
 use chrono::{DateTime, Duration, DurationRound};
 use chrono::prelude::*;
 use uuid::Uuid;
-use crate::utils::jwt::create_jwt;
+use crate::utils::jwt::create_auth_jwt;
 use crate::middlewares::auth::AuthorizationService;
 use actix_web::dev::ResponseBody;
 use serde::{Deserialize, Serialize};
@@ -47,7 +47,7 @@ pub async fn login(user: web::Json<LoginUser>, session: web::Data<Arc<Session>>)
             let parsed_hash = PasswordHash::new(&hashed_password).unwrap();
             if argon2.verify_password(user.password.as_ref(),
                                       &parsed_hash).is_ok() {
-                let token = create_jwt(read_row.id.to_string());
+                let token = create_auth_jwt(read_row.id.to_string());
                 HttpResponse::Ok().json(LoginResponse {
                     id: read_row.id.to_string(),
                     auth_token: token.to_string(),
@@ -90,7 +90,7 @@ pub async fn register(user: web::Json<InputUser>, session: web::Data<Arc<Session
             email: user.email.clone(),
             created: Timestamp(Duration::milliseconds(Utc::now().timestamp_millis())),
         };
-        let token = create_jwt(uid.to_string());
+        let token = create_auth_jwt(uid.to_string());
         account::add_user(&session, new_user).await.expect("Cant add User");
         HttpResponse::Ok().json(RegisterResponse {
             id: uid.to_string(),

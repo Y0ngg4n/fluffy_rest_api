@@ -21,7 +21,7 @@ impl FromRequest for AuthorizationService {
             Some(_) => {
                 let _split: Vec<&str> = _auth.unwrap().to_str().unwrap().split("Bearer").collect();
                 let token = _split[1].trim();
-                let _var = env::var("JWT_SECRET").unwrap();
+                let _var = env::var("JWT_AUTH_SECRET").unwrap();
                 let key = _var.as_bytes();
                 match decode::<jwt::AccountToken>(
                     token,
