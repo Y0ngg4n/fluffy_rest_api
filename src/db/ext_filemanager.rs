@@ -15,6 +15,7 @@ use std::error::Error;
 use crate::db::filemanager::get_directory;
 use scylla::frame::response::result::Row;
 
+
 pub async fn get_other_whiteboard(session_arc: &Arc<Session>, whiteboard: NewGetOtherWhiteboard) -> Option<Vec<Row>> {
     let session = Arc::clone(session_arc);
     session
@@ -29,7 +30,7 @@ pub async fn get_ext_whiteboard(session_arc: &Arc<Session>, whiteboard: NewGetEx
     let session = Arc::clone(session_arc);
     session
         .query(
-            "SELECT * FROM fluffy_board.whiteboard WHERE owner=? AND directory=?;",
+            "SELECT * FROM fluffy_board.ext_whiteboard WHERE account=? AND directory=?;",
             (whiteboard.account, whiteboard.directory),
         )
         .await.ok()?.rows

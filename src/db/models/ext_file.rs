@@ -27,9 +27,9 @@ pub struct ReadGetExtWhiteboard{
     pub id:  Uuid,
     pub account: Uuid,
     pub directory: Uuid,
-    pub name: String,
-    pub edit: bool,
     pub data: Uuid,
+    pub edit: bool,
+    pub name: String,
 }
 
 #[derive(Serialize, Deserialize)]
