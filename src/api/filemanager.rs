@@ -101,11 +101,20 @@ pub async fn directory_delete(auth: AuthorizationService, directory: web::Json<I
 }
 
 #[derive(Serialize, Deserialize)]
-struct GetWhiteboardResponse {
+struct GetWhiteboardResponseOwner {
     pub id: Uuid,
     pub owner: Uuid,
     pub directory: Uuid,
     pub created: i64,
+    pub name: String,
+    pub view_id: Uuid,
+    pub edit_id: Uuid,
+}
+
+#[derive(Serialize, Deserialize)]
+struct GetWhiteboardResponse {
+    pub id: Uuid,
+    pub directory: Uuid,
     pub name: String,
 }
 
@@ -124,26 +133,37 @@ pub async fn whiteboard_get(auth: AuthorizationService, whiteboard: web::Json<In
         directory: directory_uuid,
         owner: uuid,
     };
-    let mut rows_vec: Vec<GetWhiteboardResponse> = Vec::new();
+    let mut response_vec: Vec<GetWhiteboardResponse> = Vec::new();
+    let mut responseOwner_vec: Vec<GetWhiteboardResponseOwner> = Vec::new();
     if let Some(rows) = get_whiteboard(&session, new_get_whiteboard).await {
         for row in rows.into_typed::<ReadGetWhiteboard>() {
             let unwraped_row = row.unwrap();
-            rows_vec.push(GetWhiteboardResponse {
-                id: unwraped_row.id,
-                owner: unwraped_row.owner,
-                directory: unwraped_row.directory,
-                created: unwraped_row.created.num_milliseconds(),
-                name: unwraped_row.name,
-            });
+            if unwraped_row.owner == uuid {
+                responseOwner_vec.push(GetWhiteboardResponseOwner {
+                    id: unwraped_row.id,
+                    owner: unwraped_row.owner,
+                    directory: unwraped_row.directory,
+                    created: unwraped_row.created.num_milliseconds(),
+                    name: unwraped_row.name,
+                    view_id: unwraped_row.view_id,
+                    edit_id: unwraped_row.edit_id,
+                });
+            }else{
+                response_vec.push(GetWhiteboardResponse {
+                    id: unwraped_row.id,
+                    directory: unwraped_row.directory,
+                    name: unwraped_row.name,
+                });
+            }
         }
-        HttpResponse::Ok().json(rows_vec)
+        HttpResponse::Ok().json((response_vec, responseOwner_vec))
     } else {
-        HttpResponse::Ok().json(rows_vec)
+        HttpResponse::Ok().json((response_vec, responseOwner_vec))
     }
 }
 
 #[post("/whiteboard/create")]
-pub async fn whitebord_create(auth: AuthorizationService, whiteboard: web::Json<InputCreateWhiteboard>,
+pub async fn whiteboard_create(auth: AuthorizationService, whiteboard: web::Json<InputCreateWhiteboard>,
                               session: web::Data<Arc<Session>>) -> impl Responder {
     let uuid = parse_own_uuid(auth);
     let new_uuid = Uuid::new_v4();
@@ -155,6 +175,9 @@ pub async fn whitebord_create(auth: AuthorizationService, whiteboard: web::Json<
         directory: directory_uuid,
         password: whiteboard.password.clone(),
         created: Timestamp(Duration::milliseconds(Utc::now().timestamp_millis())),
+        data: Uuid::new_v4(),
+        view_id: Uuid::new_v4(),
+        edit_id: Uuid::new_v4()
     };
     create_whiteboard(&session, new_whiteboard).await.expect("Cant create Whiteboard");
     HttpResponse::Ok().json(CreateWhiteboardResponse { id: new_uuid.to_string(), directory: directory_uuid.to_string() })
@@ -184,11 +207,11 @@ pub async fn whiteboard_delete(auth: AuthorizationService, whiteboard: web::Json
     HttpResponse::Ok().body("Whiteboard deleted")
 }
 
-fn parse_own_uuid(auth: AuthorizationService) -> Uuid {
+pub fn parse_own_uuid(auth: AuthorizationService) -> Uuid {
     Uuid::parse_str(auth.token.claims.sub.as_str()).unwrap()
 }
 
-fn parse_dir_uuid(directory: String) -> Uuid {
+pub fn parse_dir_uuid(directory: String) -> Uuid {
     let mut uuid: Uuid = Uuid::nil();
     if !directory.is_empty() {
         uuid = Uuid::parse_str(&directory).unwrap();
@@ -229,7 +252,7 @@ pub fn init_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(directory_rename);
     cfg.service(directory_delete);
     cfg.service(whiteboard_get);
-    cfg.service(whitebord_create);
+    cfg.service(whiteboard_create);
     cfg.service(whiteboard_rename);
     cfg.service(whiteboard_delete);
 }

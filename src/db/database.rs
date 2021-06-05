@@ -2,6 +2,7 @@ use scylla::{IntoTypedRows, Session, SessionBuilder, QueryResult};
 use std::error::Error;
 use scylla::transport::errors::{NewSessionError, QueryError};
 use std::sync::Arc;
+use scylla::transport::Compression;
 
 pub async fn connect() -> Result<Session, Box<dyn Error>> {
     println!("Connecting to scylla db ...");
@@ -10,6 +11,7 @@ pub async fn connect() -> Result<Session, Box<dyn Error>> {
 
     let session = SessionBuilder::new()
         .known_node(uri)
+        .compression(Some(Compression::Snappy))
         .build()
         .await?;
     // match session{
@@ -52,7 +54,22 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
             created timestamp, \
             view_id UUID, \
             edit_id UUID, \
+            data UUID, \
             PRIMARY KEY(id, owner, directory)
+            )",
+            &[],
+        )
+        .await?;
+    session
+        .query(
+            "CREATE TABLE IF NOT EXISTS fluffy_board.ext_whiteboard (\
+            id UUID, \
+            account UUID, \
+            directory UUID, \
+            name text, \
+            edit Boolean, \
+            data UUID, \
+            PRIMARY KEY(id, account, directory)
             )",
             &[],
         )

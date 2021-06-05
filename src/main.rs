@@ -46,6 +46,7 @@ async fn start_webserver(session: Arc<Session>) -> std::io::Result<()> {
 // register HTTP requests handlers
             .service(web::scope("/account").configure(api::account::init_routes))
             .service(web::scope("/filemanager").configure(api::filemanager::init_routes))
+            .service(web::scope("/filemanager-ext").configure(api::ext_filemanager::init_routes))
     )
         .bind("0.0.0.0:9090")?
         .run()

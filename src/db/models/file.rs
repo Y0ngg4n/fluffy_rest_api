@@ -81,8 +81,11 @@ pub struct ReadGetWhiteboard{
     pub owner: Uuid,
     pub directory: Uuid,
     pub created: Duration,
+    pub data: Uuid,
+    pub edit_id: Uuid,
     pub name: String,
     pub password: String,
+    pub view_id: Uuid,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -98,7 +101,10 @@ pub struct NewCreateWhiteboard{
     pub name: String,
     pub directory: Uuid,
     pub password: String,
-    pub created: Timestamp
+    pub created: Timestamp,
+    pub data: Uuid,
+    pub view_id: Uuid,
+    pub edit_id: Uuid,
 }
 
 #[derive(Serialize, Deserialize)]

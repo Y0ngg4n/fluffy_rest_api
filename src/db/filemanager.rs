@@ -65,10 +65,11 @@ pub async fn create_whiteboard(session_arc: &Arc<Session>, whiteboard: NewCreate
     let session = Arc::clone(session_arc);
     session
         .query(
-            "INSERT INTO fluffy_board.whiteboard (id, owner, directory, name, password, created) \
-            VALUES (?, ?, ?, ?, ?, ?);",
+            "INSERT INTO fluffy_board.whiteboard (id, owner, directory, name, password, created,\
+            edit_id, view_id, data) \
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);",
             (whiteboard.id, whiteboard.owner, whiteboard.directory, whiteboard.name,
-             whiteboard.password, whiteboard.created),
+             whiteboard.password, whiteboard.created, whiteboard.edit_id, whiteboard.view_id, whiteboard.data),
         )
         .await?;
     Ok(())
