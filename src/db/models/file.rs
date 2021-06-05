@@ -58,6 +58,12 @@ pub struct InputDeleteDirectory{
     pub id: Uuid,
 }
 
+pub struct NewDeleteDirectory{
+    pub id: Uuid,
+    pub owner: Uuid,
+}
+
+
 #[derive(Serialize, Deserialize)]
 pub struct InputGetWhiteboard{
     pub directory: String,

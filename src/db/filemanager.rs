@@ -5,7 +5,7 @@ use std::sync::Arc;
 use scylla::frame::value::Timestamp;
 use uuid::Uuid;
 use scylla::frame::response::result::Row;
-use crate::db::models::file::{NewCreateDirectory, InputRenameDirectory, NewRenameDirectory, InputDeleteDirectory, NewCreateWhiteboard, NewRenameWhiteboard, InputDeleteWhiteboard, NewGetDirectory, NewGetWhiteboard};
+use crate::db::models::file::{NewCreateDirectory, InputRenameDirectory, NewRenameDirectory, InputDeleteDirectory, NewCreateWhiteboard, NewRenameWhiteboard, InputDeleteWhiteboard, NewGetDirectory, NewGetWhiteboard, NewDeleteDirectory, ReadGetWhiteboard};
 
 pub async fn get_directory(session_arc: &Arc<Session>, directory: NewGetDirectory) -> Option<Vec<Row>> {
     let session = Arc::clone(session_arc);
@@ -40,12 +40,12 @@ pub async fn rename_directory(session_arc: &Arc<Session>, directory: NewRenameDi
     Ok(())
 }
 
-pub async fn delete_directory(session_arc: &Arc<Session>, directory: InputDeleteDirectory) -> Result<(), Box<dyn Error>> {
+pub async fn delete_directory(session_arc: &Arc<Session>, directory: NewDeleteDirectory) -> Result<(), Box<dyn Error>> {
     let session = Arc::clone(session_arc);
     session
         .query(
             "DELETE FROM fluffy_board.wb_directory WHERE id=?;",
-            (directory.id,),
+            (directory.id, ),
         )
         .await?;
     Ok(())
@@ -90,7 +90,7 @@ pub async fn delete_whiteboard(session_arc: &Arc<Session>, whiteboard: InputDele
     session
         .query(
             "DELETE FROM fluffy_board.whiteboard WHERE id=?;",
-            (whiteboard.id,),
+            (whiteboard.id, ),
         )
         .await?;
     Ok(())

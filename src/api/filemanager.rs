@@ -6,7 +6,7 @@ use crate::middlewares::auth::AuthorizationService;
 use std::sync::Arc;
 use scylla::{Session, IntoTypedRows};
 use uuid::Uuid;
-use crate::db::models::file::{InputCreateDirectory, NewCreateDirectory, InputRenameDirectory, NewRenameDirectory, InputDeleteDirectory, NewCreateWhiteboard, InputCreateWhiteboard, InputRenameWhiteboard, NewRenameWhiteboard, InputDeleteWhiteboard, NewGetDirectory, InputGetDirectory, ReadGetDirectory, InputGetWhiteboard, NewGetWhiteboard, ReadGetWhiteboard};
+use crate::db::models::file::{InputCreateDirectory, NewCreateDirectory, InputRenameDirectory, NewRenameDirectory, InputDeleteDirectory, NewCreateWhiteboard, InputCreateWhiteboard, InputRenameWhiteboard, NewRenameWhiteboard, InputDeleteWhiteboard, NewGetDirectory, InputGetDirectory, ReadGetDirectory, InputGetWhiteboard, NewGetWhiteboard, ReadGetWhiteboard, NewDeleteDirectory};
 use crate::db::filemanager::{create_directory, rename_directory, delete_directory, create_whiteboard, rename_whiteboard, delete_whiteboard, get_directory, get_whiteboard};
 use scylla::frame::value::Timestamp;
 use chrono::{Duration, Utc};
@@ -26,7 +26,7 @@ struct CreateDirectoryResponse {
     parent: String
 }
 
-#[get("/directory/get")]
+#[post("/directory/get")]
 pub async fn directory_get(auth: AuthorizationService, directory: web::Json<InputGetDirectory>, session: web::Data<Arc<Session>>) -> impl Responder {
     let uuid = Uuid::parse_str(auth.token.claims.sub.as_str()).unwrap();
     let parent_uuid;
@@ -48,7 +48,7 @@ pub async fn directory_get(auth: AuthorizationService, directory: web::Json<Inpu
                 owner: unwraped_row.owner,
                 parent: unwraped_row.parent,
                 created: unwraped_row.created.num_milliseconds(),
-                filename: "".to_string()
+                filename: unwraped_row.filename,
             });
         }
         HttpResponse::Ok().json(rows_vec)
@@ -95,8 +95,24 @@ pub async fn directory_rename(auth: AuthorizationService, directory: web::Json<I
 #[post("/directory/delete")]
 pub async fn directory_delete(auth: AuthorizationService, directory: web::Json<InputDeleteDirectory>,
                               session: web::Data<Arc<Session>>) -> impl Responder {
-    // let uuid = Uuid::parse_str(auth.token.claims.sub.as_str()).unwrap();
-    delete_directory(&session, directory.0).await.expect("Cant delete Directory");
+    let uuid = Uuid::parse_str(auth.token.claims.sub.as_str()).unwrap();
+    let new_delete_dir = NewDeleteDirectory{
+        id: directory.id,
+        owner: uuid
+    };
+    delete_directory(&session, new_delete_dir).await.expect("Cant delete Directory");
+    let new_get_delete_whitebord = NewGetWhiteboard{
+        owner: uuid,
+        directory: directory.id
+    };
+    if let Some(rows)= get_whiteboard(&session, new_get_delete_whitebord).await {
+        for row in rows.into_typed::<ReadGetWhiteboard>() {
+            let unwraped_row = row.unwrap();
+            delete_whiteboard(&session, InputDeleteWhiteboard{
+                id: unwraped_row.id,
+            }).await.expect("Cant delete Whiteboard");
+        }
+    }
     HttpResponse::Ok().body("Directory deleted")
 }
 
@@ -115,7 +131,7 @@ struct CreateWhiteboardResponse {
     directory: String
 }
 
-#[get("/whiteboard/get")]
+#[post("/whiteboard/get")]
 pub async fn whiteboard_get(auth: AuthorizationService, whiteboard: web::Json<InputGetWhiteboard>,
                             session: web::Data<Arc<Session>>) -> impl Responder {
     let uuid = Uuid::parse_str(auth.token.claims.sub.as_str()).unwrap();
