@@ -13,6 +13,8 @@ use chrono::{Duration, Utc};
 use std::error::Error;
 use std::future::Future;
 use async_recursion::async_recursion;
+use crate::db::models::ext_file::{NewGetExtWhiteboard, NewDeleteExtWhiteboard, ReadGetExtWhiteboard};
+use crate::db::ext_filemanager::{get_ext_whiteboard, delete_ext_whiteboard};
 
 #[derive(Serialize, Deserialize)]
 struct GetDirectoryResponse {
@@ -215,6 +217,17 @@ async fn delete_sub_directory(session: &Arc<Session>, new_get_delete_directory: 
             delete_directory(&session, NewDeleteDirectory {
                 id: unwraped_row.id,
             }).await.expect("Could not delete subdir");
+        }
+    }
+    if let Some(rows) = get_ext_whiteboard(&session, NewGetExtWhiteboard {
+        directory: new_get_delete_directory.parent,
+        account: new_get_delete_directory.owner,
+    }).await {
+        for row in rows.into_typed::<ReadGetExtWhiteboard>() {
+            let unwraped_row = row.unwrap();
+            delete_ext_whiteboard(&session, NewDeleteExtWhiteboard {
+                id: unwraped_row.id,
+            }).await.expect("Cant delete ext whiteboard");
         }
     }
     if let Some(rows) = get_whiteboard(&session, NewGetWhiteboard {

@@ -17,9 +17,10 @@ use crate::db::ext_filemanager::get_other_whiteboard;
 #[derive(Serialize, Deserialize)]
 struct GetExtWhiteboardResponse {
     pub id: Uuid,
-    pub owner: Uuid,
+    pub account: Uuid,
     pub directory: Uuid,
     pub name: String,
+    pub edit: bool,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -30,7 +31,7 @@ struct CreateWhiteboardExtResponse {
 
 #[post("/whiteboard/get")]
 pub async fn whiteboard_ext_get(auth: AuthorizationService, whiteboard: web::Json<InputGetExtWhiteboard>,
-                            session: web::Data<Arc<Session>>) -> impl Responder {
+                                session: web::Data<Arc<Session>>) -> impl Responder {
     let uuid = parse_own_uuid(auth);
     let directory_uuid = parse_dir_uuid(whiteboard.directory.clone());
     let new_get_whiteboard = NewGetExtWhiteboard {
@@ -42,11 +43,12 @@ pub async fn whiteboard_ext_get(auth: AuthorizationService, whiteboard: web::Jso
         for row in rows.into_typed::<ReadGetExtWhiteboard>() {
             let unwraped_row = row.unwrap();
             response_vec.push(GetExtWhiteboardResponse {
-                    id: unwraped_row.id,
-                    owner: unwraped_row.account,
-                    directory: unwraped_row.directory,
-                    name: unwraped_row.name,
-                });
+                id: unwraped_row.id,
+                account: unwraped_row.account,
+                directory: unwraped_row.directory,
+                name: unwraped_row.name,
+                edit: unwraped_row.edit,
+            });
         }
         HttpResponse::Ok().json(response_vec)
     } else {
@@ -56,7 +58,7 @@ pub async fn whiteboard_ext_get(auth: AuthorizationService, whiteboard: web::Jso
 
 #[post("/whiteboard/create")]
 pub async fn whiteboard_ext_create(auth: AuthorizationService, whiteboard: web::Json<InputCreateExtWhiteboard>,
-                               session: web::Data<Arc<Session>>) -> impl Responder {
+                                   session: web::Data<Arc<Session>>) -> impl Responder {
     let uuid = parse_own_uuid(auth);
     let directory_uuid = parse_dir_uuid(whiteboard.directory.clone());
     let board_uuid = whiteboard.id;
@@ -90,15 +92,15 @@ pub async fn whiteboard_ext_create(auth: AuthorizationService, whiteboard: web::
             }
         }
         HttpResponse::Ok().json(CreateWhiteboardExtResponse { id: new_uuid.to_string(), directory: directory_uuid.to_string() })
-    }else{
+    } else {
         HttpResponse::BadRequest().body("No such board")
     }
 }
 
 #[post("/whiteboard/delete")]
 pub async fn whiteboard_ext_delete(auth: AuthorizationService, whiteboard: web::Json<InputDeleteExtWhiteboard>,
-                               session: web::Data<Arc<Session>>) -> impl Responder {
-    delete_ext_whiteboard(&session, NewDeleteExtWhiteboard{
+                                   session: web::Data<Arc<Session>>) -> impl Responder {
+    delete_ext_whiteboard(&session, NewDeleteExtWhiteboard {
         id: whiteboard.id
     }).await.expect("Cant delete Whiteboard");
     HttpResponse::Ok().body("Whiteboard deleted")
