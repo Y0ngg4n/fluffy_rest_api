@@ -30,7 +30,7 @@ pub async fn get_ext_whiteboard(session_arc: &Arc<Session>, whiteboard: NewGetEx
     let session = Arc::clone(session_arc);
     session
         .query(
-            "SELECT * FROM fluffy_board.ext_whiteboard WHERE account=? AND directory=?;",
+            "SELECT * FROM fluffy_board.ext_whiteboard WHERE account=? AND directory=? ALLOW FILTERING;",
             (whiteboard.account, whiteboard.directory),
         )
         .await.ok()?.rows
