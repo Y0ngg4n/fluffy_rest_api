@@ -25,8 +25,8 @@ pub struct NewUser {
 #[derive(FromRow)]
 pub struct ReadUser {
     pub id: Uuid,
-    pub email: String,
     pub created: Duration,
+    pub email: String,
     pub name: String,
     pub password: String,
 }

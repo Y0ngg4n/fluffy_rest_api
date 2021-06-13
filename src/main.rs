@@ -35,8 +35,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
 }
 
 #[actix_web::main]
-async fn start_webserver(session: Arc<Session>) -> std::io::Result<()> {
+async fn start_webserver(session: Arc<Session>) -> Result<(), Box<dyn Error>> {
     // Starting Webserver
+    println!("Starting Webserver");
     HttpServer::new(move ||
         App::new()
             .data(Arc::clone(&session))
@@ -50,6 +51,6 @@ async fn start_webserver(session: Arc<Session>) -> std::io::Result<()> {
     )
         .bind("0.0.0.0:9090")?
         .run()
-        .await.expect("Could not start Webserver!");
+        .await.expect("Could not start Webserver");
     Ok(())
 }

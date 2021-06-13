@@ -11,7 +11,7 @@ pub async fn get_directory(session_arc: &Arc<Session>, directory: NewGetDirector
     let session = Arc::clone(session_arc);
     session
         .query(
-            "SELECT * FROM fluffy_board.wb_directory WHERE owner=? AND parent=?;",
+            "SELECT * FROM fluffy_board.wb_directory WHERE owner=? AND parent=? ALLOW FILTERING;",
             (directory.owner, directory.parent),
         )
         .await.ok()?.rows
@@ -33,8 +33,8 @@ pub async fn rename_directory(session_arc: &Arc<Session>, directory: NewRenameDi
     let session = Arc::clone(session_arc);
     session
         .query(
-            "UPDATE fluffy_board.wb_directory SET filename=? WHERE id=? AND owner=? AND parent=?;",
-            (directory.filename, directory.id, directory.owner, directory.parent),
+            "UPDATE fluffy_board.wb_directory SET filename=? WHERE id=?;",
+            (directory.filename, directory.id),
         )
         .await?;
     Ok(())
@@ -55,7 +55,7 @@ pub async fn get_whiteboard(session_arc: &Arc<Session>, whiteboard: NewGetWhiteb
     let session = Arc::clone(session_arc);
     session
         .query(
-            "SELECT * FROM fluffy_board.whiteboard WHERE owner=? AND directory=?;",
+            "SELECT * FROM fluffy_board.whiteboard WHERE owner=? AND directory=? ALLOW FILTERING;",
             (whiteboard.owner, whiteboard.directory),
         )
         .await.ok()?.rows
@@ -79,8 +79,8 @@ pub async fn rename_whiteboard(session_arc: &Arc<Session>, whiteboard: NewRename
     let session = Arc::clone(session_arc);
     session
         .query(
-            "UPDATE fluffy_board.whiteboard SET name=? WHERE id=? AND owner=? AND directory=?;",
-            (whiteboard.name, whiteboard.id, whiteboard.owner, whiteboard.directory),
+            "UPDATE fluffy_board.whiteboard SET name=? WHERE id=?;",
+            (whiteboard.name, whiteboard.id),
         )
         .await?;
     Ok(())

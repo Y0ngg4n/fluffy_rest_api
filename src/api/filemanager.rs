@@ -76,12 +76,8 @@ pub async fn directory_create(auth: AuthorizationService, directory: web::Json<I
 #[post("/directory/rename")]
 pub async fn directory_rename(auth: AuthorizationService, directory: web::Json<InputRenameDirectory>,
                               session: web::Data<Arc<Session>>) -> impl Responder {
-    let uuid = parse_own_uuid(auth);
-    let parent_uuid = parse_dir_uuid(directory.parent.clone());
     let renamed_dir = NewRenameDirectory {
         id: directory.id,
-        owner: uuid,
-        parent: parent_uuid,
         filename: directory.filename.clone(),
     };
     rename_directory(&session, renamed_dir).await.expect("Cant rename Directory");
@@ -172,12 +168,8 @@ pub async fn whiteboard_create(auth: AuthorizationService, whiteboard: web::Json
 #[post("/whiteboard/rename")]
 pub async fn whiteboard_rename(auth: AuthorizationService, whiteboard: web::Json<InputRenameWhiteboard>,
                                session: web::Data<Arc<Session>>) -> impl Responder {
-    let uuid = parse_own_uuid(auth);
-    let directory_uuid = parse_dir_uuid(whiteboard.directory.clone());
     let renamed_whiteboard = NewRenameWhiteboard {
         id: whiteboard.id,
-        owner: uuid,
-        directory: directory_uuid,
         name: whiteboard.name.clone(),
     };
     rename_whiteboard(&session, renamed_whiteboard).await.expect("Cant rename Whiteboard");

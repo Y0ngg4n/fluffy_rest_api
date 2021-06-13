@@ -14,10 +14,10 @@ pub struct InputGetDirectory{
 #[derive(FromRow)]
 pub struct ReadGetDirectory{
     pub id:  Uuid,
-    pub owner: Uuid,
-    pub parent: Uuid,
     pub created: Duration,
     pub filename: String,
+    pub owner: Uuid,
+    pub parent: Uuid,
 }
 
 #[derive(Clone, Copy)]
@@ -43,14 +43,11 @@ pub struct NewCreateDirectory{
 #[derive(Serialize, Deserialize)]
 pub struct InputRenameDirectory{
     pub id: Uuid,
-    pub parent: String,
     pub filename: String,
 }
 
 pub struct NewRenameDirectory{
     pub id: Uuid,
-    pub owner: Uuid,
-    pub parent: Uuid,
     pub filename: String,
 }
 
@@ -78,12 +75,12 @@ pub struct NewGetWhiteboard{
 #[derive(FromRow)]
 pub struct ReadGetWhiteboard{
     pub id:  Uuid,
-    pub owner: Uuid,
-    pub directory: Uuid,
     pub created: Duration,
     pub data: Uuid,
+    pub directory: Uuid,
     pub edit_id: Uuid,
     pub name: String,
+    pub owner: Uuid,
     pub password: String,
     pub view_id: Uuid,
 }
@@ -110,14 +107,11 @@ pub struct NewCreateWhiteboard{
 #[derive(Serialize, Deserialize)]
 pub struct InputRenameWhiteboard{
     pub id: Uuid,
-    pub directory: String,
     pub name: String,
 }
 
 pub struct NewRenameWhiteboard{
     pub id: Uuid,
-    pub owner: Uuid,
-    pub directory: Uuid,
     pub name: String,
 }
 

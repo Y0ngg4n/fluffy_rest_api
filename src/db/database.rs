@@ -39,7 +39,14 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
             email text, \
             password text,\
             created timestamp, \
-            PRIMARY KEY(id, email))",
+            PRIMARY KEY(id)\
+            )",
+            &[],
+        )
+        .await?;
+    session
+        .query(
+            "CREATE INDEX IF NOT EXISTS ON fluffy_board.account(email)",
             &[],
         )
         .await?;
@@ -55,8 +62,20 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
             view_id UUID, \
             edit_id UUID, \
             data UUID, \
-            PRIMARY KEY(id, owner, directory)
+            PRIMARY KEY(id)\
             )",
+            &[],
+        )
+        .await?;
+    session
+        .query(
+            "CREATE INDEX IF NOT EXISTS ON fluffy_board.whiteboard(owner)",
+            &[],
+        )
+        .await?;
+    session
+        .query(
+            "CREATE INDEX IF NOT EXISTS ON fluffy_board.whiteboard(directory)",
             &[],
         )
         .await?;
@@ -69,8 +88,20 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
             name text, \
             edit Boolean, \
             data UUID, \
-            PRIMARY KEY(id, account, directory)
+            PRIMARY KEY(id) \
             )",
+            &[],
+        )
+        .await?;
+    session
+        .query(
+            "CREATE INDEX IF NOT EXISTS ON fluffy_board.ext_whiteboard(account)",
+            &[],
+        )
+        .await?;
+    session
+        .query(
+            "CREATE INDEX IF NOT EXISTS ON fluffy_board.ext_whiteboard(directory)",
             &[],
         )
         .await?;
@@ -82,8 +113,20 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
             parent UUID, \
             filename TEXT, \
             created timestamp, \
-            PRIMARY KEY(id, owner, parent)
+            PRIMARY KEY(id) \
             )",
+            &[],
+        )
+        .await?;
+    session
+        .query(
+            "CREATE INDEX IF NOT EXISTS ON fluffy_board.wb_directory(owner)",
+            &[],
+        )
+        .await?;
+    session
+        .query(
+            "CREATE INDEX IF NOT EXISTS ON fluffy_board.wb_directory(parent)",
             &[],
         )
         .await?;
