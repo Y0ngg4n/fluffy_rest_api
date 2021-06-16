@@ -20,7 +20,6 @@ pub async fn add_user(session_arc: &Arc<Session>, user: NewUser) -> Result<(), B
 }
 
 pub async fn get_user_by_email(session_arc: &Arc<Session>, email: String) -> Option<Vec<Row>> {
-    print!("{}", email);
     let session = Arc::clone(session_arc);
     session
         .query(

@@ -31,6 +31,7 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
             &[],
         )
         .await?;
+    // Account
     session
         .query(
             "CREATE TABLE IF NOT EXISTS fluffy_board.account ( \
@@ -50,6 +51,7 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
             &[],
         )
         .await?;
+    // Filemanager
     session
         .query(
             "CREATE TABLE IF NOT EXISTS fluffy_board.whiteboard (\
@@ -79,6 +81,7 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
             &[],
         )
         .await?;
+    // Filemanager ext
     session
         .query(
             "CREATE TABLE IF NOT EXISTS fluffy_board.ext_whiteboard (\
@@ -105,6 +108,7 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
             &[],
         )
         .await?;
+    // Directory
     session
         .query(
             "CREATE TABLE IF NOT EXISTS fluffy_board.wb_directory (\
@@ -130,5 +134,59 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
             &[],
         )
         .await?;
+
+
+    // #############################
+    // ToolbarOptions
+    // #############################
+    // Pencil
+    session
+        .query(
+            "CREATE TABLE IF NOT EXISTS fluffy_board.toolbar_options_pencil (\
+            owner UUID, \
+            color_presets List<Text>, \
+            stroke_width double, \
+            PRIMARY KEY(owner) \
+            )",
+            &[],
+        )
+        .await?;
+    // Highlighter
+    session
+        .query(
+            "CREATE TABLE IF NOT EXISTS fluffy_board.toolbar_options_highlighter (\
+            owner UUID, \
+            color_presets List<Text>, \
+            stroke_width double, \
+            PRIMARY KEY(owner) \
+            )",
+            &[],
+        )
+        .await?;
+    // Eraser
+    session
+        .query(
+            "CREATE TABLE IF NOT EXISTS fluffy_board.toolbar_options_eraser (\
+            owner UUID, \
+            stroke_width double, \
+            PRIMARY KEY(owner) \
+            )",
+            &[],
+        )
+        .await?;
+    // Straight Line
+    session
+        .query(
+            "CREATE TABLE IF NOT EXISTS fluffy_board.toolbar_options_straight_line (\
+            owner UUID, \
+            color_presets List<Text>, \
+            stroke_width double, \
+            PRIMARY KEY(owner) \
+            )",
+            &[],
+        )
+        .await?;
+
+
     Ok(())
 }
