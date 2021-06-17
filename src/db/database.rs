@@ -146,6 +146,7 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
             owner UUID, \
             color_presets List<Text>, \
             stroke_width double, \
+            selected_color int, \
             PRIMARY KEY(owner) \
             )",
             &[],
@@ -158,6 +159,7 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
             owner UUID, \
             color_presets List<Text>, \
             stroke_width double, \
+            selected_color int, \
             PRIMARY KEY(owner) \
             )",
             &[],
@@ -181,12 +183,39 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
             owner UUID, \
             color_presets List<Text>, \
             stroke_width double, \
+            selected_color int, \
+            selected_cap int, \
             PRIMARY KEY(owner) \
             )",
             &[],
         )
         .await?;
-
+    // Figure
+    session
+        .query(
+            "CREATE TABLE IF NOT EXISTS fluffy_board.toolbar_options_figure (\
+            owner UUID, \
+            color_presets List<Text>, \
+            stroke_width double, \
+            selected_color int, \
+            selected_figure int, \
+            selected_fill int, \
+            PRIMARY KEY(owner) \
+            )",
+            &[],
+        )
+        .await?;
+    session
+        .query(
+            "CREATE TABLE IF NOT EXISTS fluffy_board.toolbar_options_background (\
+            owner UUID, \
+            stroke_width double, \
+            selected_background int, \
+            PRIMARY KEY(owner) \
+            )",
+            &[],
+        )
+        .await?;
 
     Ok(())
 }

@@ -20,8 +20,8 @@ pub async fn update_highlighter(session_arc: &Arc<Session>, highlighter: NewUpda
     let session = Arc::clone(session_arc);
     session
         .query(
-            "INSERT INTO fluffy_board.toolbar_options_highlighter (owner, color_presets, stroke_width) VALUES (?, ?, ?);",
-            (highlighter.owner, highlighter.color_presets, highlighter.stroke_width),
+            "INSERT INTO fluffy_board.toolbar_options_highlighter (owner, color_presets, stroke_width, selected_color) VALUES (?, ?, ?, ?);",
+            (highlighter.owner, highlighter.color_presets, highlighter.stroke_width, highlighter.selected_color),
         ).await?;
     Ok(())
 }

@@ -20,8 +20,8 @@ pub async fn update_straight_line(session_arc: &Arc<Session>, straight_line: New
     let session = Arc::clone(session_arc);
     session
         .query(
-            "INSERT INTO fluffy_board.toolbar_options_straight_line (owner, color_presets, stroke_width) VALUES (?, ?, ?);",
-            (straight_line.owner, straight_line.color_presets, straight_line.stroke_width),
+            "INSERT INTO fluffy_board.toolbar_options_straight_line (owner, color_presets, stroke_width, selected_color, selected_cap) VALUES (?, ?, ?, ?, ?);",
+            (straight_line.owner, straight_line.color_presets, straight_line.stroke_width, straight_line.selected_color, straight_line.selected_cap),
         ).await?;
     Ok(())
 }

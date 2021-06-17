@@ -51,6 +51,8 @@ async fn start_webserver(session: Arc<Session>) -> Result<(), Box<dyn Error>> {
             .service(web::scope("/toolbar-options/highlighter").configure(api::toolbar_options::highlighter::init_routes))
             .service(web::scope("/toolbar-options/eraser").configure(api::toolbar_options::eraser::init_routes))
             .service(web::scope("/toolbar-options/straight-line").configure(api::toolbar_options::straight_line::init_routes))
+            .service(web::scope("/toolbar-options/figure").configure(api::toolbar_options::figure::init_routes))
+            .service(web::scope("/toolbar-options/background").configure(api::toolbar_options::background::init_routes))
     )
         .bind("0.0.0.0:9090")?
         .run()

@@ -12,6 +12,8 @@ use crate::db::toolbar_options::straight_line::{get_straight_line, update_straig
 struct GetResponse {
     color_presets: Vec<String>,
     stroke_width: f64,
+    selected_color: i32,
+    selected_cap: i32,
 }
 
 #[get("/get")]
@@ -24,7 +26,9 @@ pub async fn get(auth: AuthorizationService,  session: web::Data<Arc<Session>>) 
             let straight_line_options = rows.into_typed::<ReadGetStraightLine>().next().unwrap().unwrap();
             HttpResponse::Ok().json(GetResponse{
                 color_presets: straight_line_options.color_presets,
-                stroke_width: straight_line_options.stroke_width
+                stroke_width: straight_line_options.stroke_width,
+                selected_color: straight_line_options.selected_color,
+                selected_cap: straight_line_options.selected_cap
             })
         }
     }else{
@@ -39,6 +43,8 @@ pub async fn update(auth: AuthorizationService,  straight_line: web::Json<InputU
         owner: uuid,
         color_presets: straight_line.color_presets.clone(),
         stroke_width: straight_line.stroke_width.clone(),
+        selected_color: straight_line.selected_color.clone(),
+        selected_cap: straight_line.selected_cap.clone()
     }).await.expect("Not updated ");
     HttpResponse::Ok().body("Updated")
 }
