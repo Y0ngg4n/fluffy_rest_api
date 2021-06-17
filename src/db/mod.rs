@@ -4,3 +4,4 @@ pub mod models;
 pub mod filemanager;
 pub mod ext_filemanager;
 pub mod toolbar_options;
+pub mod websocket;

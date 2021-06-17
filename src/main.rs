@@ -11,6 +11,21 @@ use db::database;
 use std::sync::Arc;
 use actix_web::http::header;
 use actix_web::web::resource;
+use std::time::Duration;
+use std::{thread};
+
+use actix::io::SinkWrite;
+use actix::*;
+use actix_codec::Framed;
+use awc::{
+    error::WsProtocolError,
+    ws::{Codec, Frame, Message},
+    BoxedSocket, Client,
+};
+use bytes::Bytes;
+use futures::stream::{SplitSink, StreamExt};
+use api::websocket::websockethandler::WebsocketHandler;
+use crate::api::websocket::websockethandler::{ws_index};
 
 mod db;
 mod api;
@@ -53,6 +68,8 @@ async fn start_webserver(session: Arc<Session>) -> Result<(), Box<dyn Error>> {
             .service(web::scope("/toolbar-options/straight-line").configure(api::toolbar_options::straight_line::init_routes))
             .service(web::scope("/toolbar-options/figure").configure(api::toolbar_options::figure::init_routes))
             .service(web::scope("/toolbar-options/background").configure(api::toolbar_options::background::init_routes))
+    //         Websocket
+            .service(web::resource("/ws/").route(web::get().to(ws_index)))
     )
         .bind("0.0.0.0:9090")?
         .run()
