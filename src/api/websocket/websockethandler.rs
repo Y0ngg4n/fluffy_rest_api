@@ -12,9 +12,15 @@ use actix_web_actors::ws;
 use bytes::Bytes;
 use actix_web_actors::ws::WebsocketContext;
 use serde_json::{Value};
+use crate::middlewares::auth::AuthorizationService;
+use std::env;
+use jsonwebtoken::{decode, DecodingKey, Validation, Algorithm};
+use crate::utils::jwt;
 
 /// How often heartbeat pings are sent
 const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
+// Seconds before clients authentication times out
+const AUTH_TIMEOUT: Duration = Duration::from_secs(10);
 /// How long before lack of client response causes a timeout
 const CLIENT_TIMEOUT: Duration = Duration::from_secs(10);
 
@@ -61,8 +67,8 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WebsocketHandler 
                 self.hb = Instant::now();
             }
             // TO write something to the client do ctx.text()
-            Ok(ws::Message::Text(text)) => WebsocketHandler::onTextMessage(text, ctx),
-            Ok(ws::Message::Binary(bin)) => WebsocketHandler::onBinaryMessage(bin, ctx),
+            Ok(ws::Message::Text(text)) => WebsocketHandler::on_text_message(text, ctx),
+            Ok(ws::Message::Binary(bin)) => WebsocketHandler::on_binary_message(bin, ctx),
             Ok(ws::Message::Close(reason)) => {
                 ctx.close(reason);
                 ctx.stop();
@@ -74,7 +80,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WebsocketHandler 
 
 impl WebsocketHandler {
     fn new() -> Self {
-        Self { hb: Instant::now() }
+        Self { hb: Instant::now()}
     }
 
     /// helper method that sends ping to client every second.
@@ -98,16 +104,34 @@ impl WebsocketHandler {
         });
     }
 
-    fn onTextMessage(text: String, ctx: &mut <Self as Actor>::Context){
+    fn on_text_message(text: String, ctx: &mut <Self as Actor>::Context){
         let json: serde_json::Value = parse_json(text);
-        if json["type"] == "scribble-add" {
-
+        if !check_auth(json["auth_token"].as_str().unwrap()) {
+            println!("Stopping connection");
+            ctx.stop();
+            return;
+        }
+        if json["type"].as_str().unwrap() == "scribble-add" {
+            ctx.text("Scriiible");
         }
         ctx.text("Hallo zurück");
     }
 
-    fn onBinaryMessage(bin: Bytes, ctx: &mut <Self as Actor>::Context){
+    fn on_binary_message(bin: Bytes, ctx: &mut <Self as Actor>::Context){
         println!("Binary");
+    }
+}
+
+fn check_auth(token: &str) -> bool {
+    let _var = env::var("JWT_AUTH_SECRET").unwrap();
+    let key = _var.as_bytes();
+    match decode::<jwt::AccountToken>(
+        &token,
+        &DecodingKey::from_secret(key),
+        &Validation::new(Algorithm::HS512),
+    ) {
+        Ok(_token) => true,
+        Err(_e) => false,
     }
 }
 
