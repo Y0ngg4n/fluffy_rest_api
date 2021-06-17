@@ -16,6 +16,8 @@ use crate::middlewares::auth::AuthorizationService;
 use std::env;
 use jsonwebtoken::{decode, DecodingKey, Validation, Algorithm};
 use crate::utils::jwt;
+use uuid::Uuid;
+use std::borrow::Borrow;
 
 /// How often heartbeat pings are sent
 const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
@@ -24,10 +26,14 @@ const AUTH_TIMEOUT: Duration = Duration::from_secs(10);
 /// How long before lack of client response causes a timeout
 const CLIENT_TIMEOUT: Duration = Duration::from_secs(10);
 
+const actor_uuids: Vec<Uuid>  = Vec::new();
+
 /// do websocket handshake and start `MyWebSocket` actor
 pub(crate) async fn ws_index(r: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Error> {
     // println!("{:?}", r);
-    let res = ws::start(WebsocketHandler::new(), &r, stream);
+    let websocket = WebsocketHandler::new();
+    actor_uuids.push(websocket.uuid);
+    let res = ws::start(websocket, &r, stream);
     // println!("{:?}", res);
     res
 }
@@ -38,6 +44,7 @@ pub(crate) struct WebsocketHandler {
     /// Client must send ping at least once per 10 seconds (CLIENT_TIMEOUT),
     /// otherwise we drop connection.
     hb: Instant,
+    uuid: Uuid,
 }
 
 impl Actor for WebsocketHandler {
@@ -57,7 +64,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WebsocketHandler 
         ctx: &mut Self::Context,
     ) {
         // process websocket messages
-        // println!("WS: {:?}", msg);
+        println!("WS: {:?}", msg);
         match msg {
             Ok(ws::Message::Ping(msg)) => {
                 self.hb = Instant::now();
@@ -70,6 +77,8 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WebsocketHandler 
             Ok(ws::Message::Text(text)) => WebsocketHandler::on_text_message(text, ctx),
             Ok(ws::Message::Binary(bin)) => WebsocketHandler::on_binary_message(bin, ctx),
             Ok(ws::Message::Close(reason)) => {
+                let index = actor_uuids.iter().position(|&r| r == self.uuid).unwrap();
+                actor_uuids.remove(index);
                 ctx.close(reason);
                 ctx.stop();
             }
@@ -80,7 +89,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WebsocketHandler 
 
 impl WebsocketHandler {
     fn new() -> Self {
-        Self { hb: Instant::now()}
+        Self { hb: Instant::now(), uuid: Uuid::new_v4()}
     }
 
     /// helper method that sends ping to client every second.
@@ -92,7 +101,8 @@ impl WebsocketHandler {
             if Instant::now().duration_since(act.hb) > CLIENT_TIMEOUT {
                 // heartbeat timed out
                 println!("Websocket Client heartbeat failed, disconnecting!");
-
+                let index = actor_uuids.iter().position(|&r| r == act.uuid).unwrap();
+                actor_uuids.remove(index);
                 // stop actor
                 ctx.stop();
 
@@ -111,8 +121,8 @@ impl WebsocketHandler {
             ctx.stop();
             return;
         }
-        if json["type"].as_str().unwrap() == "scribble-add" {
-            ctx.text("Scriiible");
+        if json["type"].as_str().unwrap() == "scribble-add"{
+            println!("Scribble");
         }
         ctx.text("Hallo zurück");
     }

@@ -217,5 +217,35 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
         )
         .await?;
 
+    // #############################
+    // Whiteboard Data
+    // #############################
+    // Scribble
+    session
+        .query(
+            "CREATE TYPE IF NOT EXISTS fluffy_board.drawpoint (dx double, dy double)",
+            &[],
+        )
+        .await?;
+    session
+        .query(
+            "CREATE TABLE IF NOT EXISTS fluffy_board.wb_scribble (\
+            id UUID, \
+            whiteboard UUID, \
+            selected_figure_type_toolbar int, \
+            stroke_width double, \
+            stroke_cap double, \
+            color text, \
+            points List<frozen <drawpoint>>, \
+            left_extremity double, \
+            right_extremity double, \
+            top_extremity double, \
+            bottom_extremity double, \
+            PRIMARY KEY(id) \
+            )",
+            &[],
+        )
+        .await?;
+
     Ok(())
 }

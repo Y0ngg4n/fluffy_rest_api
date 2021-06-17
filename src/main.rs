@@ -69,7 +69,7 @@ async fn start_webserver(session: Arc<Session>) -> Result<(), Box<dyn Error>> {
             .service(web::scope("/toolbar-options/figure").configure(api::toolbar_options::figure::init_routes))
             .service(web::scope("/toolbar-options/background").configure(api::toolbar_options::background::init_routes))
     //         Websocket
-            .service(web::resource("/ws/").route(web::get().to(ws_index)))
+            .service(web::resource("/ws").route(web::get().to(ws_index)))
     )
         .bind("0.0.0.0:9090")?
         .run()
