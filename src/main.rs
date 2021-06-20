@@ -26,6 +26,7 @@ use bytes::Bytes;
 use futures::stream::{SplitSink, StreamExt};
 use api::websocket::websockethandler::WebsocketHandler;
 use crate::api::websocket::websockethandler::{ws_index};
+use crate::api::websocket::lobby::Lobby;
 
 mod db;
 mod api;
@@ -50,11 +51,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
 #[actix_web::main]
 async fn start_webserver(session: Arc<Session>) -> Result<(), Box<dyn Error>> {
+    let websocket_lobby_server = Lobby::default().start(); //create and spin up a lobby
     // Starting Webserver
     println!("Starting Webserver");
     HttpServer::new(move ||
         App::new()
             .data(Arc::clone(&session))
+            .data(websocket_lobby_server.clone())
 
 // enable logger - always register actix-web Logger middleware last
             .wrap(middleware::Logger::default())
@@ -69,7 +72,7 @@ async fn start_webserver(session: Arc<Session>) -> Result<(), Box<dyn Error>> {
             .service(web::scope("/toolbar-options/figure").configure(api::toolbar_options::figure::init_routes))
             .service(web::scope("/toolbar-options/background").configure(api::toolbar_options::background::init_routes))
     //         Websocket
-            .service(web::resource("/ws").route(web::get().to(ws_index)))
+            .service(web::scope("/ws").configure(api::websocket::start_connection::init_routes))
     )
         .bind("0.0.0.0:9090")?
         .run()
