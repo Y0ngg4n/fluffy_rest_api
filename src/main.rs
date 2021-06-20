@@ -24,8 +24,6 @@ use awc::{
 };
 use bytes::Bytes;
 use futures::stream::{SplitSink, StreamExt};
-use api::websocket::websockethandler::WebsocketHandler;
-use crate::api::websocket::websockethandler::{ws_index};
 use crate::api::websocket::lobby::Lobby;
 
 mod db;

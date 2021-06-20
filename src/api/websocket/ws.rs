@@ -17,15 +17,17 @@ pub struct WsConn {
     lobby_addr: Addr<Lobby>,
     hb: Instant,
     id: Uuid,
+    user: Uuid,
 }
 
 impl WsConn {
-    pub fn new(room: Uuid, lobby: Addr<Lobby>) -> WsConn {
+    pub fn new(room: Uuid, user: Uuid, lobby: Addr<Lobby>) -> WsConn {
         WsConn {
             id: Uuid::new_v4(),
             room,
             hb: Instant::now(),
             lobby_addr: lobby,
+            user
         }
     }
 }
