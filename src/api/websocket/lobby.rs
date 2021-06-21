@@ -2,20 +2,29 @@ use actix::prelude::{Actor, Context, Handler, Recipient};
 use std::collections::{HashMap, HashSet};
 use uuid::Uuid;
 use crate::api::websocket::messages::{WsMessage, Disconnect, Connect, ClientActorMessage};
+use crate::api::websocket::json_messages::{ScribbleAdd, ScribbleUpdate};
+use crate::db::websocket::scribble::{scribble_add, scribble_update};
+use std::sync::Arc;
+use scylla::Session;
+use tokio::task;
 
 
 type Socket = Recipient<WsMessage>;
 
 pub struct Lobby {
-    sessions: HashMap<Uuid, Socket>, //self id to self
+    sessions: HashMap<Uuid, Socket>,
+    //self id to self
     rooms: HashMap<Uuid, HashSet<Uuid>>,      //room id  to list of users id
+    database_session: Arc<Session>
+
 }
 
-impl Default for Lobby {
-    fn default() -> Lobby {
+impl Lobby {
+    pub(crate) fn default(session: &Arc<Session>) -> Lobby {
         Lobby {
             sessions: HashMap::new(),
             rooms: HashMap::new(),
+            database_session: session.clone()
         }
     }
 }
@@ -87,13 +96,24 @@ impl Handler<ClientActorMessage> for Lobby {
     type Result = ();
 
     fn handle(&mut self, msg: ClientActorMessage, _ctx: &mut Context<Self>) -> Self::Result {
-        println!("{}", msg.msg);
+        // println!("Message: {}", msg.msg);
         if msg.msg.starts_with("\\w") {
             // Send to specific User
-            if let Some(id_to) = msg.msg.split(' ').collect::<Vec<&str>>().get(1) {
-                self.send_message(&msg.msg, &Uuid::parse_str(id_to).unwrap());
+            if let Some(id_to) = msg.msg.split('#').collect::<Vec<&str>>().get(1) {
+                self.send_message(&msg.msg, &Uuid::parse_str(id_to).expect("Could not parse Message"));
             }
-        } else {
+        } else if msg.msg.starts_with("scribble-add#") {
+            // self.rooms.get(&msg.room_id).unwrap().
+            let json = msg.msg.replace("scribble-add#", "");
+            let parsed: ScribbleAdd = serde_json::from_str(&json).expect("Cant unwrap scribble-add json");
+            task::spawn(scribble_add(self.database_session.clone(), parsed, msg.room_id));
+        }else if msg.msg.starts_with("scribble-update#") {
+            // self.rooms.get(&msg.room_id).unwrap().
+            let json = msg.msg.replace("scribble-update#", "");
+            let parsed: ScribbleUpdate = serde_json::from_str(&json).expect("Cant unwrap scribble-update json");
+            task::spawn(scribble_update(self.database_session.clone(), parsed));
+        }
+        else {
             // Broadcast
             self.rooms.get(&msg.room_id).unwrap().iter().for_each(|client| self.send_message(&msg.msg, client));
         }

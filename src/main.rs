@@ -49,7 +49,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
 #[actix_web::main]
 async fn start_webserver(session: Arc<Session>) -> Result<(), Box<dyn Error>> {
-    let websocket_lobby_server = Lobby::default().start(); //create and spin up a lobby
+    let websocket_lobby_server = Lobby::default(&session).start(); //create and spin up a lobby
     // Starting Webserver
     println!("Starting Webserver");
     HttpServer::new(move ||

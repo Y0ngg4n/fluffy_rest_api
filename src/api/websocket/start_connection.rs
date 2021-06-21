@@ -5,6 +5,8 @@ use uuid::Uuid;
 use crate::api::websocket::ws::WsConn;
 use crate::api::websocket::lobby::Lobby;
 use crate::api::websocket::websocket_tools;
+use scylla::Session;
+use std::sync::Arc;
 
 // Code from https://github.com/antholeole/actix-sockets.git
 // Thank you soooo much :)
@@ -15,8 +17,8 @@ pub async fn start_connection(
     stream: Payload,
     Path((whiteboard, jwt_token)): Path<(Uuid, String)>,
     srv: Data<Addr<Lobby>>,
+    session: web::Data<Arc<Session>>
 ) -> Result<HttpResponse, Error> {
-    println!("{}", jwt_token);
     let auth_result = websocket_tools::check_auth(jwt_token.as_str());
     if auth_result.authenticated {
         let ws = WsConn::new(

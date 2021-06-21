@@ -234,7 +234,8 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
             whiteboard UUID, \
             selected_figure_type_toolbar int, \
             stroke_width double, \
-            stroke_cap double, \
+            stroke_cap int, \
+            painting_style int, \
             color text, \
             points List<frozen <drawpoint>>, \
             left_extremity double, \
@@ -246,6 +247,11 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
             &[],
         )
         .await?;
-
+    session
+        .query(
+            "CREATE INDEX IF NOT EXISTS ON fluffy_board.wb_scribble(whiteboard)",
+            &[],
+        )
+        .await?;
     Ok(())
 }

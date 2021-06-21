@@ -7,6 +7,8 @@ use std::time::{Duration, Instant};
 use uuid::Uuid;
 use crate::api::websocket::lobby::Lobby;
 use crate::api::websocket::messages::{Connect, Disconnect, ClientActorMessage, WsMessage};
+use scylla::Session;
+use std::sync::Arc;
 
 
 const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(10);
@@ -27,7 +29,7 @@ impl WsConn {
             room,
             hb: Instant::now(),
             lobby_addr: lobby,
-            user
+            user,
         }
     }
 }
@@ -44,6 +46,7 @@ impl Actor for WsConn {
                 addr: addr.recipient(),
                 lobby_id: self.room,
                 self_id: self.id,
+                user: self.user,
             })
             .into_actor(self)
             .then(|res, _, ctx| {
@@ -57,7 +60,7 @@ impl Actor for WsConn {
     }
 
     fn stopping(&mut self, _: &mut Self::Context) -> Running {
-        self.lobby_addr.do_send(Disconnect { id: self.id, room_id: self.room });
+        self.lobby_addr.do_send(Disconnect { id: self.id, room_id: self.room, user: self.user });
         Running::Stop
     }
 }
@@ -67,7 +70,7 @@ impl WsConn {
         ctx.run_interval(HEARTBEAT_INTERVAL, |act, ctx| {
             if Instant::now().duration_since(act.hb) > CLIENT_TIMEOUT {
                 println!("Disconnecting failed heartbeat");
-                act.lobby_addr.do_send(Disconnect { id: act.id, room_id: act.room });
+                act.lobby_addr.do_send(Disconnect { id: act.id, room_id: act.room, user: act.user });
                 ctx.stop();
                 return;
             }
@@ -98,8 +101,9 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsConn {
             Ok(ws::Message::Nop) => (),
             Ok(Text(s)) => self.lobby_addr.do_send(ClientActorMessage {
                 id: self.id,
+                user: self.user,
                 msg: s,
-                room_id: self.room
+                room_id: self.room,
             }),
 
             Err(e) => panic!(e),
