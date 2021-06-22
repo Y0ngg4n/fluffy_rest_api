@@ -794,6 +794,7 @@ dependencies = [
  "actix",
  "actix-codec",
  "actix-files",
+ "actix-http",
  "actix-rt 2.2.0",
  "actix-web",
  "actix-web-actors",

@@ -31,3 +31,24 @@ pub struct ScribbleUpdate {
 pub struct ScribbleDelete {
     pub uuid: Uuid,
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct UploadAdd {
+    pub uuid: Uuid,
+    pub upload_type: i32,
+    pub offset_dx: f64,
+    pub offset_dy: f64,
+    pub image_data: Vec<u8>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct UploadUpdate {
+    pub uuid: Uuid,
+    pub offset_dx: f64,
+    pub offset_dy: f64,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct UploadDelete {
+    pub uuid: Uuid,
+}

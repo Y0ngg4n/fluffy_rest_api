@@ -261,9 +261,15 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
             upload_type int, \
             offset_dx double, \
             offset_dy double, \
-            image_data List<Tinyint>, \
+            image_data blob, \
             PRIMARY KEY(id) \
             )",
+            &[],
+        )
+        .await?;
+    session
+        .query(
+            "CREATE INDEX IF NOT EXISTS ON fluffy_board.wb_upload(whiteboard)",
             &[],
         )
         .await?;

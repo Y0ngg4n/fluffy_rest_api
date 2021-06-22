@@ -25,3 +25,18 @@ pub struct ReadGetWhiteboardScribble {
     pub top_extremity: f64,
     pub whiteboard: Uuid
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct InputGetWhiteboardUpload{
+    pub whiteboard: Uuid,
+}
+
+#[derive(FromRow)]
+pub struct ReadGetWhiteboardUpload {
+    pub id: Uuid,
+    pub image_data: Vec<u8>,
+    pub offset_dx: f64,
+    pub offset_dy: f64,
+    pub upload_type: i32,
+    pub whiteboard: Uuid
+}

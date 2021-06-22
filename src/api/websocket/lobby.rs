@@ -2,11 +2,12 @@ use actix::prelude::{Actor, Context, Handler, Recipient};
 use std::collections::{HashMap, HashSet};
 use uuid::Uuid;
 use crate::api::websocket::messages::{WsMessage, Disconnect, Connect, ClientActorMessage};
-use crate::api::websocket::json_messages::{ScribbleAdd, ScribbleUpdate, ScribbleDelete};
+use crate::api::websocket::json_messages::{ScribbleAdd, ScribbleUpdate, ScribbleDelete, UploadAdd, UploadUpdate};
 use crate::db::websocket::scribble::{scribble_add, scribble_update, scribble_delete};
 use std::sync::Arc;
 use scylla::Session;
 use tokio::task;
+use crate::db::websocket::upload::{upload_add, upload_update};
 
 
 type Socket = Recipient<WsMessage>;
@@ -123,6 +124,22 @@ impl Handler<ClientActorMessage> for Lobby {
             let json = msg.msg.replace("scribble-delete#", "");
             let parsed: ScribbleDelete = serde_json::from_str(&json).expect("Cant unwrap scribble-delete json");
             task::spawn(scribble_delete(self.database_session.clone(), parsed));
+            self.rooms.get(&msg.room_id).unwrap().iter().for_each(|client| if client.clone() != msg.id {
+                self.send_message(&msg.msg, client)
+            });
+        }else if msg.msg.starts_with("upload-add#") {
+            // self.rooms.get(&msg.room_id).unwrap().
+            let json = msg.msg.replace("upload-add#", "");
+            let parsed: UploadAdd = serde_json::from_str(&json).expect("Cant unwrap upload-add json");
+            task::spawn(upload_add(self.database_session.clone(), parsed, msg.room_id));
+            self.rooms.get(&msg.room_id).unwrap().iter().for_each(|client| if client.clone() != msg.id {
+                self.send_message(&msg.msg, client)
+            });
+        }else if msg.msg.starts_with("upload-update#") {
+            // self.rooms.get(&msg.room_id).unwrap().
+            let json = msg.msg.replace("upload-update#", "");
+            let parsed: UploadUpdate = serde_json::from_str(&json).expect("Cant unwrap upload-update json");
+            task::spawn(upload_update(self.database_session.clone(), parsed));
             self.rooms.get(&msg.room_id).unwrap().iter().for_each(|client| if client.clone() != msg.id {
                 self.send_message(&msg.msg, client)
             });

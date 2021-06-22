@@ -15,8 +15,8 @@ use std::future::Future;
 use async_recursion::async_recursion;
 use crate::db::ext_filemanager::{get_ext_whiteboard, delete_ext_whiteboard};
 use crate::api::filemanager::{parse_own_uuid, parse_dir_uuid};
-use crate::db::whiteboard_data::get_whiteboard_scribbles;
-use crate::db::models::whiteboard::{InputGetWhiteboardScribble, ReadGetWhiteboardScribble};
+use crate::db::whiteboard_data::{get_whiteboard_scribbles, get_whiteboard_upload};
+use crate::db::models::whiteboard::{InputGetWhiteboardScribble, ReadGetWhiteboardScribble, InputGetWhiteboardUpload, ReadGetWhiteboardUpload};
 use crate::db::websocket::websocket_types::DrawPoint;
 
 #[derive(Serialize, Deserialize)]
@@ -33,6 +33,17 @@ pub struct ResponseGetWhiteboardScribble {
     pub stroke_width: f64,
     pub top_extremity: f64,
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct ResponseGetWhiteboardUpload {
+    pub id: Uuid,
+    pub image_data: Vec<u8>,
+    pub offset_dx: f64,
+    pub offset_dy: f64,
+    pub upload_type: i32,
+}
+
+
 
 #[post("/scribble/get")]
 pub async fn scribbles_get(auth: AuthorizationService, whiteboard: web::Json<InputGetWhiteboardScribble>, session: web::Data<Arc<Session>>) -> impl Responder {
@@ -60,6 +71,27 @@ pub async fn scribbles_get(auth: AuthorizationService, whiteboard: web::Json<Inp
     }
 }
 
+#[post("/upload/get")]
+pub async fn upload_get(auth: AuthorizationService, upload: web::Json<InputGetWhiteboardUpload>, session: web::Data<Arc<Session>>) -> impl Responder {
+    let mut rows_vec: Vec<ResponseGetWhiteboardUpload> = Vec::new();
+    if let Some(rows) = get_whiteboard_upload(&session, upload.0).await {
+        for row in rows.into_typed::<ReadGetWhiteboardUpload>() {
+            let unwraped_row = row.unwrap();
+            rows_vec.push(ResponseGetWhiteboardUpload {
+                id: unwraped_row.id,
+                image_data: unwraped_row.image_data,
+                offset_dx: unwraped_row.offset_dx,
+                offset_dy: unwraped_row.offset_dy,
+                upload_type: unwraped_row.upload_type
+            });
+        }
+        HttpResponse::Ok().json(rows_vec)
+    } else {
+        HttpResponse::Ok().json(rows_vec)
+    }
+}
+
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(scribbles_get);
+    cfg.service(upload_get);
 }
