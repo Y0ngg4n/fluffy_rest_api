@@ -76,7 +76,6 @@ pub struct NewGetWhiteboard{
 pub struct ReadGetWhiteboard{
     pub id:  Uuid,
     pub created: Duration,
-    pub data: Uuid,
     pub directory: Uuid,
     pub edit_id: Uuid,
     pub name: String,
@@ -99,7 +98,6 @@ pub struct NewCreateWhiteboard{
     pub directory: Uuid,
     pub password: String,
     pub created: Timestamp,
-    pub data: Uuid,
     pub view_id: Uuid,
     pub edit_id: Uuid,
 }

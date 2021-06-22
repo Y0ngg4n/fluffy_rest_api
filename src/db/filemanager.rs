@@ -66,10 +66,10 @@ pub async fn create_whiteboard(session_arc: &Arc<Session>, whiteboard: NewCreate
     session
         .query(
             "INSERT INTO fluffy_board.whiteboard (id, owner, directory, name, password, created,\
-            edit_id, view_id, data) \
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);",
+            edit_id, view_id) \
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?);",
             (whiteboard.id, whiteboard.owner, whiteboard.directory, whiteboard.name,
-             whiteboard.password, whiteboard.created, whiteboard.edit_id, whiteboard.view_id, whiteboard.data),
+             whiteboard.password, whiteboard.created, whiteboard.edit_id, whiteboard.view_id),
         )
         .await?;
     Ok(())

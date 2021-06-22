@@ -157,7 +157,6 @@ pub async fn whiteboard_create(auth: AuthorizationService, whiteboard: web::Json
         directory: directory_uuid,
         password: whiteboard.password.clone(),
         created: Timestamp(Duration::milliseconds(Utc::now().timestamp_millis())),
-        data: Uuid::new_v4(),
         view_id: Uuid::new_v4(),
         edit_id: Uuid::new_v4(),
     };

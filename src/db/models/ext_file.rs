@@ -13,6 +13,7 @@ pub struct InputGetExtWhiteboard{
 
 #[derive(Clone, Copy)]
 pub struct NewGetOtherWhiteboard{
+
     pub id: Uuid,
 }
 
@@ -27,9 +28,9 @@ pub struct ReadGetExtWhiteboard{
     pub id:  Uuid,
     pub account: Uuid,
     pub directory: Uuid,
-    pub data: Uuid,
     pub edit: bool,
     pub name: String,
+    pub original: Uuid,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -45,7 +46,7 @@ pub struct NewCreateExtWhiteboard{
     pub directory: Uuid,
     pub name: String,
     pub edit: bool,
-    pub data: Uuid,
+    pub original: Uuid,
 }
 
 #[derive(Serialize, Deserialize)]

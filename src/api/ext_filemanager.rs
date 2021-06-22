@@ -21,6 +21,7 @@ struct GetExtWhiteboardResponse {
     pub directory: Uuid,
     pub name: String,
     pub edit: bool,
+    pub original: Uuid,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -48,6 +49,7 @@ pub async fn whiteboard_ext_get(auth: AuthorizationService, whiteboard: web::Jso
                 directory: unwraped_row.directory,
                 name: unwraped_row.name,
                 edit: unwraped_row.edit,
+                original: unwraped_row.original
             });
         }
         HttpResponse::Ok().json(response_vec)
@@ -68,24 +70,28 @@ pub async fn whiteboard_ext_create(auth: AuthorizationService, whiteboard: web::
     }).await {
         for row in rows.into_typed::<ReadGetWhiteboard>() {
             let unwraped_row = row.unwrap();
+            println!("{}", unwraped_row.edit_id);
+            println!("{}", whiteboard.permission_id);
             if unwraped_row.edit_id == whiteboard.permission_id {
+                println!("Edit");
                 let new_whiteboard = NewCreateExtWhiteboard {
                     id: new_uuid,
                     account: uuid,
                     name: unwraped_row.name.clone(),
                     directory: directory_uuid,
-                    data: Uuid::new_v4(),
+                    original: board_uuid,
                     edit: true,
                 };
                 create_ext_whiteboard(&session, new_whiteboard).await.expect("Cant create Whiteboard");
                 // HttpResponse::Ok().body("")
             } else if unwraped_row.view_id == whiteboard.permission_id {
+                println!("View");
                 let new_whiteboard = NewCreateExtWhiteboard {
                     id: new_uuid,
                     account: uuid,
                     name: unwraped_row.name.clone(),
                     directory: directory_uuid,
-                    data: Uuid::new_v4(),
+                    original: board_uuid,
                     edit: false,
                 };
                 create_ext_whiteboard(&session, new_whiteboard).await.expect("Cant create Whiteboard");

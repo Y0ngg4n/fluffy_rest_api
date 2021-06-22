@@ -63,7 +63,6 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
             created timestamp, \
             view_id UUID, \
             edit_id UUID, \
-            data UUID, \
             PRIMARY KEY(id)\
             )",
             &[],
@@ -90,7 +89,7 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
             directory UUID, \
             name text, \
             edit Boolean, \
-            data UUID, \
+            original UUID, \
             PRIMARY KEY(id) \
             )",
             &[],
