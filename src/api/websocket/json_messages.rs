@@ -7,7 +7,7 @@ pub struct ScribbleAdd {
     pub uuid: Uuid,
     pub selected_figure_type_toolbar: i32,
     pub stroke_width: f64,
-    pub stoke_cap: i32,
+    pub stroke_cap: i32,
     pub color: String,
     pub points: Vec<DrawPoint>,
     pub painting_style: i32,
@@ -17,7 +17,7 @@ pub struct ScribbleAdd {
 pub struct ScribbleUpdate {
     pub uuid: Uuid,
     pub stroke_width: f64,
-    pub stoke_cap: i32,
+    pub stroke_cap: i32,
     pub color: String,
     pub points: Vec<DrawPoint>,
     pub painting_style: i32,
@@ -25,4 +25,9 @@ pub struct ScribbleUpdate {
     pub right_extremity: f64,
     pub top_extremity: f64,
     pub bottom_extremity: f64,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct ScribbleDelete {
+    pub uuid: Uuid,
 }

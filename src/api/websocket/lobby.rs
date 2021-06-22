@@ -2,8 +2,8 @@ use actix::prelude::{Actor, Context, Handler, Recipient};
 use std::collections::{HashMap, HashSet};
 use uuid::Uuid;
 use crate::api::websocket::messages::{WsMessage, Disconnect, Connect, ClientActorMessage};
-use crate::api::websocket::json_messages::{ScribbleAdd, ScribbleUpdate};
-use crate::db::websocket::scribble::{scribble_add, scribble_update};
+use crate::api::websocket::json_messages::{ScribbleAdd, ScribbleUpdate, ScribbleDelete};
+use crate::db::websocket::scribble::{scribble_add, scribble_update, scribble_delete};
 use std::sync::Arc;
 use scylla::Session;
 use tokio::task;
@@ -14,9 +14,9 @@ type Socket = Recipient<WsMessage>;
 pub struct Lobby {
     sessions: HashMap<Uuid, Socket>,
     //self id to self
-    rooms: HashMap<Uuid, HashSet<Uuid>>,      //room id  to list of users id
-    database_session: Arc<Session>
-
+    rooms: HashMap<Uuid, HashSet<Uuid>>,
+    //room id  to list of users id
+    database_session: Arc<Session>,
 }
 
 impl Lobby {
@@ -24,7 +24,7 @@ impl Lobby {
         Lobby {
             sessions: HashMap::new(),
             rooms: HashMap::new(),
-            database_session: session.clone()
+            database_session: session.clone(),
         }
     }
 }
@@ -107,13 +107,26 @@ impl Handler<ClientActorMessage> for Lobby {
             let json = msg.msg.replace("scribble-add#", "");
             let parsed: ScribbleAdd = serde_json::from_str(&json).expect("Cant unwrap scribble-add json");
             task::spawn(scribble_add(self.database_session.clone(), parsed, msg.room_id));
-        }else if msg.msg.starts_with("scribble-update#") {
+            self.rooms.get(&msg.room_id).unwrap().iter().for_each(|client| if client.clone() != msg.id {
+                self.send_message(&msg.msg, client)
+            });
+        } else if msg.msg.starts_with("scribble-update#") {
             // self.rooms.get(&msg.room_id).unwrap().
             let json = msg.msg.replace("scribble-update#", "");
             let parsed: ScribbleUpdate = serde_json::from_str(&json).expect("Cant unwrap scribble-update json");
             task::spawn(scribble_update(self.database_session.clone(), parsed));
-        }
-        else {
+            self.rooms.get(&msg.room_id).unwrap().iter().for_each(|client| if client.clone() != msg.id {
+                self.send_message(&msg.msg, client)
+            });
+        } else if msg.msg.starts_with("scribble-delete#") {
+            // self.rooms.get(&msg.room_id).unwrap().
+            let json = msg.msg.replace("scribble-delete#", "");
+            let parsed: ScribbleDelete = serde_json::from_str(&json).expect("Cant unwrap scribble-delete json");
+            task::spawn(scribble_delete(self.database_session.clone(), parsed));
+            self.rooms.get(&msg.room_id).unwrap().iter().for_each(|client| if client.clone() != msg.id {
+                self.send_message(&msg.msg, client)
+            });
+        } else {
             // Broadcast
             self.rooms.get(&msg.room_id).unwrap().iter().for_each(|client| self.send_message(&msg.msg, client));
         }
