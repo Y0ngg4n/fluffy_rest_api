@@ -69,6 +69,7 @@ async fn start_webserver(session: Arc<Session>) -> Result<(), Box<dyn Error>> {
             .service(web::scope("/toolbar-options/straight-line").configure(api::toolbar_options::straight_line::init_routes))
             .service(web::scope("/toolbar-options/figure").configure(api::toolbar_options::figure::init_routes))
             .service(web::scope("/toolbar-options/background").configure(api::toolbar_options::background::init_routes))
+            .service(web::scope("/whiteboard").configure(api::whiteboard_data::init_routes))
     //         Websocket
             .service(web::scope("/ws").configure(api::websocket::start_connection::init_routes))
     )

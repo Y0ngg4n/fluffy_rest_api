@@ -5,3 +5,4 @@ pub mod filemanager;
 pub mod ext_filemanager;
 pub mod toolbar_options;
 pub mod websocket;
+pub mod whiteboard_data;
