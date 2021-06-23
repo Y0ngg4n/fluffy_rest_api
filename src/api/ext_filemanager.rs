@@ -22,7 +22,7 @@ struct GetExtWhiteboardResponse {
     pub name: String,
     pub edit: bool,
     pub original: Uuid,
-    pub permision_id: Uuid,
+    pub permission_id: Uuid,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -51,7 +51,7 @@ pub async fn whiteboard_ext_get(auth: AuthorizationService, whiteboard: web::Jso
                 name: unwraped_row.name,
                 edit: unwraped_row.edit,
                 original: unwraped_row.original,
-                permision_id: unwraped_row.permission_id
+                permission_id: unwraped_row.permission_id
             });
         }
         HttpResponse::Ok().json(response_vec)

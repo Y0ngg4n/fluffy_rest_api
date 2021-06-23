@@ -8,6 +8,7 @@ use scylla::frame::response::cql_to_rust::FromRow;
 #[derive(Serialize, Deserialize)]
 pub struct InputGetWhiteboardScribble{
     pub whiteboard: Uuid,
+    pub permission_id: Uuid,
 }
 
 #[derive(FromRow)]
@@ -29,6 +30,7 @@ pub struct ReadGetWhiteboardScribble {
 #[derive(Serialize, Deserialize)]
 pub struct InputGetWhiteboardUpload{
     pub whiteboard: Uuid,
+    pub permission_id: Uuid,
 }
 
 #[derive(FromRow)]

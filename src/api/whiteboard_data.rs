@@ -15,7 +15,7 @@ use std::future::Future;
 use async_recursion::async_recursion;
 use crate::db::ext_filemanager::{get_ext_whiteboard, delete_ext_whiteboard};
 use crate::api::filemanager::{parse_own_uuid, parse_dir_uuid};
-use crate::db::whiteboard_data::{get_whiteboard_scribbles, get_whiteboard_upload};
+use crate::db::whiteboard_data::{get_whiteboard_scribbles, get_whiteboard_upload, get_whiteboard_by_id};
 use crate::db::models::whiteboard::{InputGetWhiteboardScribble, ReadGetWhiteboardScribble, InputGetWhiteboardUpload, ReadGetWhiteboardUpload};
 use crate::db::websocket::websocket_types::DrawPoint;
 
@@ -44,51 +44,72 @@ pub struct ResponseGetWhiteboardUpload {
 }
 
 
-
 #[post("/scribble/get")]
 pub async fn scribbles_get(auth: AuthorizationService, whiteboard: web::Json<InputGetWhiteboardScribble>, session: web::Data<Arc<Session>>) -> impl Responder {
     let mut rows_vec: Vec<ResponseGetWhiteboardScribble> = Vec::new();
-    if let Some(rows) = get_whiteboard_scribbles(&session, whiteboard.0).await {
-        for row in rows.into_typed::<ReadGetWhiteboardScribble>() {
-            let unwraped_row = row.unwrap();
-            rows_vec.push(ResponseGetWhiteboardScribble {
-                id: unwraped_row.id,
-                bottom_extremity: unwraped_row.bottom_extremity,
-                color: unwraped_row.color,
-                left_extremity: unwraped_row.left_extremity,
-                painting_style: unwraped_row.painting_style,
-                points: unwraped_row.points,
-                right_extremity: unwraped_row.right_extremity,
-                selected_figure_type_toolbar: unwraped_row.selected_figure_type_toolbar,
-                stroke_cap: unwraped_row.stroke_cap,
-                stroke_width: unwraped_row.stroke_width,
-                top_extremity: unwraped_row.top_extremity,
-            });
+    if check_permission(whiteboard.whiteboard, whiteboard.permission_id, &session).await {
+        if let Some(rows) = get_whiteboard_scribbles(&session, whiteboard.0).await {
+            for row in rows.into_typed::<ReadGetWhiteboardScribble>() {
+                let unwraped_row = row.unwrap();
+                rows_vec.push(ResponseGetWhiteboardScribble {
+                    id: unwraped_row.id,
+                    bottom_extremity: unwraped_row.bottom_extremity,
+                    color: unwraped_row.color,
+                    left_extremity: unwraped_row.left_extremity,
+                    painting_style: unwraped_row.painting_style,
+                    points: unwraped_row.points,
+                    right_extremity: unwraped_row.right_extremity,
+                    selected_figure_type_toolbar: unwraped_row.selected_figure_type_toolbar,
+                    stroke_cap: unwraped_row.stroke_cap,
+                    stroke_width: unwraped_row.stroke_width,
+                    top_extremity: unwraped_row.top_extremity,
+                });
+            }
+            HttpResponse::Ok().json(rows_vec)
+        } else {
+            HttpResponse::Ok().json(rows_vec)
         }
-        HttpResponse::Ok().json(rows_vec)
     } else {
-        HttpResponse::Ok().json(rows_vec)
+        HttpResponse::Forbidden().body("Wrong Permission")
     }
 }
 
 #[post("/upload/get")]
 pub async fn upload_get(auth: AuthorizationService, upload: web::Json<InputGetWhiteboardUpload>, session: web::Data<Arc<Session>>) -> impl Responder {
     let mut rows_vec: Vec<ResponseGetWhiteboardUpload> = Vec::new();
-    if let Some(rows) = get_whiteboard_upload(&session, upload.0).await {
-        for row in rows.into_typed::<ReadGetWhiteboardUpload>() {
-            let unwraped_row = row.unwrap();
-            rows_vec.push(ResponseGetWhiteboardUpload {
-                id: unwraped_row.id,
-                image_data: unwraped_row.image_data,
-                offset_dx: unwraped_row.offset_dx,
-                offset_dy: unwraped_row.offset_dy,
-                upload_type: unwraped_row.upload_type
-            });
+    if check_permission(upload.whiteboard, upload.permission_id, &session).await {
+        if let Some(rows) = get_whiteboard_upload(&session, upload.0).await {
+            for row in rows.into_typed::<ReadGetWhiteboardUpload>() {
+                let unwraped_row = row.unwrap();
+                rows_vec.push(ResponseGetWhiteboardUpload {
+                    id: unwraped_row.id,
+                    image_data: unwraped_row.image_data,
+                    offset_dx: unwraped_row.offset_dx,
+                    offset_dy: unwraped_row.offset_dy,
+                    upload_type: unwraped_row.upload_type,
+                });
+            }
+            HttpResponse::Ok().json(rows_vec)
+        } else {
+            HttpResponse::Ok().json(rows_vec)
         }
-        HttpResponse::Ok().json(rows_vec)
     } else {
-        HttpResponse::Ok().json(rows_vec)
+        HttpResponse::Forbidden().body("Wrong Permission")
     }
+}
+
+pub async fn check_permission(whiteboard: Uuid, permission_id: Uuid, session: &Arc<Session>) -> bool {
+    let mut auth = false;
+    if let Some(rows) = get_whiteboard_by_id(&session, whiteboard).await {
+        for row in rows.into_typed::<ReadGetWhiteboard>() {
+            let unwraped_row = row.unwrap();
+            if unwraped_row.view_id == permission_id || unwraped_row.edit_id == permission_id {
+                auth = true;
+                break;
+            }
+        }
+    }
+    return auth;
 }
 
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
