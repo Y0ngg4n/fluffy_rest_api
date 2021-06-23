@@ -90,6 +90,7 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
             name text, \
             edit Boolean, \
             original UUID, \
+            permission_id UUID, \
             PRIMARY KEY(id) \
             )",
             &[],

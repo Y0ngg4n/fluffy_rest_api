@@ -41,10 +41,10 @@ pub async fn create_ext_whiteboard(session_arc: &Arc<Session>, whiteboard: NewCr
 
         session
             .query(
-                "INSERT INTO fluffy_board.ext_whiteboard (id, account, directory, name, edit, original) \
-            VALUES (?, ?, ?, ?, ?, ?);",
+                "INSERT INTO fluffy_board.ext_whiteboard (id, account, directory, name, edit, original, permission_id) \
+            VALUES (?, ?, ?, ?, ?, ?, ?);",
                 (whiteboard.id, whiteboard.account, whiteboard.directory, whiteboard.name,
-                 whiteboard.edit, whiteboard.original)
+                 whiteboard.edit, whiteboard.original, whiteboard.permission_id)
             ).await?;
     Ok(())
 }

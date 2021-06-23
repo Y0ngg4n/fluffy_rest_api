@@ -31,6 +31,7 @@ pub struct ReadGetExtWhiteboard{
     pub edit: bool,
     pub name: String,
     pub original: Uuid,
+    pub permission_id: Uuid,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -47,6 +48,7 @@ pub struct NewCreateExtWhiteboard{
     pub name: String,
     pub edit: bool,
     pub original: Uuid,
+    pub permission_id: Uuid,
 }
 
 #[derive(Serialize, Deserialize)]

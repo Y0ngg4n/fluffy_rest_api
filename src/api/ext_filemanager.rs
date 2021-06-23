@@ -22,6 +22,7 @@ struct GetExtWhiteboardResponse {
     pub name: String,
     pub edit: bool,
     pub original: Uuid,
+    pub permision_id: Uuid,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -49,7 +50,8 @@ pub async fn whiteboard_ext_get(auth: AuthorizationService, whiteboard: web::Jso
                 directory: unwraped_row.directory,
                 name: unwraped_row.name,
                 edit: unwraped_row.edit,
-                original: unwraped_row.original
+                original: unwraped_row.original,
+                permision_id: unwraped_row.permission_id
             });
         }
         HttpResponse::Ok().json(response_vec)
@@ -81,6 +83,7 @@ pub async fn whiteboard_ext_create(auth: AuthorizationService, whiteboard: web::
                     directory: directory_uuid,
                     original: board_uuid,
                     edit: true,
+                    permission_id: whiteboard.permission_id
                 };
                 create_ext_whiteboard(&session, new_whiteboard).await.expect("Cant create Whiteboard");
                 // HttpResponse::Ok().body("")
@@ -93,6 +96,7 @@ pub async fn whiteboard_ext_create(auth: AuthorizationService, whiteboard: web::
                     directory: directory_uuid,
                     original: board_uuid,
                     edit: false,
+                    permission_id: whiteboard.permission_id
                 };
                 create_ext_whiteboard(&session, new_whiteboard).await.expect("Cant create Whiteboard");
             }
