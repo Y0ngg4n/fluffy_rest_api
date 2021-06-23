@@ -5,7 +5,7 @@ use std::error::Error;
 use scylla::frame::response::result::Row;
 use uuid::Uuid;
 use crate::db::models::toolbar_options::NewUpdatePencil;
-use crate::api::websocket::json_messages::{ScribbleAdd, ScribbleUpdate, ScribbleDelete, UploadAdd, UploadUpdate};
+use crate::api::websocket::json_messages::{ScribbleAdd, ScribbleUpdate, ScribbleDelete, UploadAdd, UploadUpdate, UploadDelete};
 
 pub async fn upload_add(session: Arc<Session>, upload: UploadAdd, whiteboard: Uuid) {
     session
@@ -23,11 +23,11 @@ pub async fn upload_update(session: Arc<Session>, upload: UploadUpdate) {
         ).await.expect("Could not update upload");
 }
 
-pub async fn upload_delete(session: Arc<Session>, scribble: ScribbleDelete) {
+pub async fn upload_delete(session: Arc<Session>, upload: UploadDelete) {
     session
         .query(
-            "DELETE FROM fluffy_board.wb_scribble WHERE id=?",
-            (scribble.uuid,)
-        ).await.expect("Could not delete scribble");
+            "DELETE FROM fluffy_board.wb_upload WHERE id=?",
+            (upload.uuid,)
+        ).await.expect("Could not delete upload");
 }
 

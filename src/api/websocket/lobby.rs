@@ -2,12 +2,12 @@ use actix::prelude::{Actor, Context, Handler, Recipient};
 use std::collections::{HashMap, HashSet};
 use uuid::Uuid;
 use crate::api::websocket::messages::{WsMessage, Disconnect, Connect, ClientActorMessage};
-use crate::api::websocket::json_messages::{ScribbleAdd, ScribbleUpdate, ScribbleDelete, UploadAdd, UploadUpdate};
+use crate::api::websocket::json_messages::{ScribbleAdd, ScribbleUpdate, ScribbleDelete, UploadAdd, UploadUpdate, UploadDelete};
 use crate::db::websocket::scribble::{scribble_add, scribble_update, scribble_delete};
 use std::sync::Arc;
 use scylla::Session;
 use tokio::task;
-use crate::db::websocket::upload::{upload_add, upload_update};
+use crate::db::websocket::upload::{upload_add, upload_update, upload_delete};
 
 
 type Socket = Recipient<WsMessage>;
@@ -140,6 +140,14 @@ impl Handler<ClientActorMessage> for Lobby {
             let json = msg.msg.replace("upload-update#", "");
             let parsed: UploadUpdate = serde_json::from_str(&json).expect("Cant unwrap upload-update json");
             task::spawn(upload_update(self.database_session.clone(), parsed));
+            self.rooms.get(&msg.room_id).unwrap().iter().for_each(|client| if client.clone() != msg.id {
+                self.send_message(&msg.msg, client)
+            });
+        }else if msg.msg.starts_with("upload-delete#") {
+            // self.rooms.get(&msg.room_id).unwrap().
+            let json = msg.msg.replace("upload-delete#", "");
+            let parsed: UploadDelete = serde_json::from_str(&json).expect("Cant unwrap upload-delete json");
+            task::spawn(upload_delete(self.database_session.clone(), parsed));
             self.rooms.get(&msg.room_id).unwrap().iter().for_each(|client| if client.clone() != msg.id {
                 self.send_message(&msg.msg, client)
             });
