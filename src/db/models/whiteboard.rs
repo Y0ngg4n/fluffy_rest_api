@@ -42,3 +42,22 @@ pub struct ReadGetWhiteboardUpload {
     pub upload_type: i32,
     pub whiteboard: Uuid
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct InputGetWhiteboardTextItem{
+    pub whiteboard: Uuid,
+    pub permission_id: Uuid,
+}
+
+#[derive(FromRow)]
+pub struct ReadGetWhiteboardTextItem {
+    pub id: Uuid,
+    pub color: String,
+    pub content_text: String,
+    pub max_height: i32,
+    pub max_width: i32,
+    pub offset_dx: f64,
+    pub offset_dy: f64,
+    pub stroke_width: f64,
+    pub whiteboard: Uuid
+}

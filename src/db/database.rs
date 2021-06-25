@@ -273,5 +273,28 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
             &[],
         )
         .await?;
+    session
+        .query(
+            "CREATE TABLE IF NOT EXISTS fluffy_board.wb_textitem (\
+            id UUID, \
+            whiteboard UUID, \
+            stroke_width double, \
+            max_width int, \
+            max_height int, \
+            color text, \
+            content_text text, \
+            offset_dx double, \
+            offset_dy double, \
+            PRIMARY KEY(id) \
+            )",
+            &[],
+        )
+        .await?;
+    session
+        .query(
+            "CREATE INDEX IF NOT EXISTS ON fluffy_board.wb_textitem(whiteboard)",
+            &[],
+        )
+        .await?;
     Ok(())
 }

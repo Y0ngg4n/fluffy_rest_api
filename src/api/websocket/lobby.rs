@@ -2,12 +2,13 @@ use actix::prelude::{Actor, Context, Handler, Recipient};
 use std::collections::{HashMap, HashSet};
 use uuid::Uuid;
 use crate::api::websocket::messages::{WsMessage, Disconnect, Connect, ClientActorMessage};
-use crate::api::websocket::json_messages::{ScribbleAdd, ScribbleUpdate, ScribbleDelete, UploadAdd, UploadUpdate, UploadDelete};
+use crate::api::websocket::json_messages::{ScribbleAdd, ScribbleUpdate, ScribbleDelete, UploadAdd, UploadUpdate, UploadDelete, TextItemAdd, TextItemUpdate, TextItemDelete};
 use crate::db::websocket::scribble::{scribble_add, scribble_update, scribble_delete};
 use std::sync::Arc;
 use scylla::Session;
 use tokio::task;
 use crate::db::websocket::upload::{upload_add, upload_update, upload_delete};
+use crate::db::websocket::textitem::{text_item_add, text_item_update, text_item_delete};
 
 
 type Socket = Recipient<WsMessage>;
@@ -151,7 +152,31 @@ impl Handler<ClientActorMessage> for Lobby {
             self.rooms.get(&msg.room_id).unwrap().iter().for_each(|client| if client.clone() != msg.id {
                 self.send_message(&msg.msg, client)
             });
-        } else {
+        }else if msg.msg.starts_with("textitem-add#") {
+            // self.rooms.get(&msg.room_id).unwrap().
+            let json = msg.msg.replace("textitem-add#", "");
+            let parsed: TextItemAdd = serde_json::from_str(&json).expect("Cant unwrap textitem-add json");
+            task::spawn(text_item_add(self.database_session.clone(), parsed, msg.room_id));
+            self.rooms.get(&msg.room_id).unwrap().iter().for_each(|client| if client.clone() != msg.id {
+                self.send_message(&msg.msg, client)
+            });
+        } else if msg.msg.starts_with("textitem-update#") {
+            // self.rooms.get(&msg.room_id).unwrap().
+            let json = msg.msg.replace("textitem-update#", "");
+            let parsed: TextItemUpdate = serde_json::from_str(&json).expect("Cant unwrap textitem-update json");
+            task::spawn(text_item_update(self.database_session.clone(), parsed));
+            self.rooms.get(&msg.room_id).unwrap().iter().for_each(|client| if client.clone() != msg.id {
+                self.send_message(&msg.msg, client)
+            });
+        }else if msg.msg.starts_with("textitem-delete#") {
+            // self.rooms.get(&msg.room_id).unwrap().
+            let json = msg.msg.replace("textitem-delete#", "");
+            let parsed: TextItemDelete = serde_json::from_str(&json).expect("Cant unwrap textitem-delete json");
+            task::spawn(text_item_delete(self.database_session.clone(), parsed));
+            self.rooms.get(&msg.room_id).unwrap().iter().for_each(|client| if client.clone() != msg.id {
+                self.send_message(&msg.msg, client)
+            });
+        }else {
             // Broadcast
             self.rooms.get(&msg.room_id).unwrap().iter().for_each(|client| self.send_message(&msg.msg, client));
         }

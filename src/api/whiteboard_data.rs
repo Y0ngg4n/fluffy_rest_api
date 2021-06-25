@@ -15,8 +15,8 @@ use std::future::Future;
 use async_recursion::async_recursion;
 use crate::db::ext_filemanager::{get_ext_whiteboard, delete_ext_whiteboard};
 use crate::api::filemanager::{parse_own_uuid, parse_dir_uuid};
-use crate::db::whiteboard_data::{get_whiteboard_scribbles, get_whiteboard_upload, get_whiteboard_by_id};
-use crate::db::models::whiteboard::{InputGetWhiteboardScribble, ReadGetWhiteboardScribble, InputGetWhiteboardUpload, ReadGetWhiteboardUpload};
+use crate::db::whiteboard_data::{get_whiteboard_scribbles, get_whiteboard_upload, get_whiteboard_by_id, get_whiteboard_text_item};
+use crate::db::models::whiteboard::{InputGetWhiteboardScribble, ReadGetWhiteboardScribble, InputGetWhiteboardUpload, ReadGetWhiteboardUpload, InputGetWhiteboardTextItem, ReadGetWhiteboardTextItem};
 use crate::db::websocket::websocket_types::DrawPoint;
 
 #[derive(Serialize, Deserialize)]
@@ -43,6 +43,17 @@ pub struct ResponseGetWhiteboardUpload {
     pub upload_type: i32,
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct ResponseGetWhiteboardTextItem{
+    pub id: Uuid,
+    pub stroke_width: f64,
+    pub max_width: i32,
+    pub max_height: i32,
+    pub color: String,
+    pub content_text: String,
+    pub offset_dx: f64,
+    pub offset_dy: f64,
+}
 
 #[post("/scribble/get")]
 pub async fn scribbles_get(auth: AuthorizationService, whiteboard: web::Json<InputGetWhiteboardScribble>, session: web::Data<Arc<Session>>) -> impl Responder {
@@ -98,6 +109,33 @@ pub async fn upload_get(auth: AuthorizationService, upload: web::Json<InputGetWh
     }
 }
 
+#[post("/textitem/get")]
+pub async fn text_item_get(auth: AuthorizationService, textitem: web::Json<InputGetWhiteboardTextItem>, session: web::Data<Arc<Session>>) -> impl Responder {
+    let mut rows_vec: Vec<ResponseGetWhiteboardTextItem> = Vec::new();
+    if check_permission(textitem.whiteboard, textitem.permission_id, &session).await {
+        if let Some(rows) = get_whiteboard_text_item(&session, textitem.0).await {
+            for row in rows.into_typed::<ReadGetWhiteboardTextItem>() {
+                let unwraped_row = row.unwrap();
+                rows_vec.push(ResponseGetWhiteboardTextItem {
+                    id: unwraped_row.id,
+                    stroke_width: unwraped_row.stroke_width,
+                    max_width: unwraped_row.max_width,
+                    max_height: unwraped_row.max_height,
+                    color: unwraped_row.color,
+                    content_text: unwraped_row.content_text,
+                    offset_dx: unwraped_row.offset_dx,
+                    offset_dy: unwraped_row.offset_dy
+                });
+            }
+            HttpResponse::Ok().json(rows_vec)
+        } else {
+            HttpResponse::Ok().json(rows_vec)
+        }
+    } else {
+        HttpResponse::Forbidden().body("Wrong Permission")
+    }
+}
+
 pub async fn check_permission(whiteboard: Uuid, permission_id: Uuid, session: &Arc<Session>) -> bool {
     let mut auth = false;
     if let Some(rows) = get_whiteboard_by_id(&session, whiteboard).await {
@@ -115,4 +153,5 @@ pub async fn check_permission(whiteboard: Uuid, permission_id: Uuid, session: &A
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(scribbles_get);
     cfg.service(upload_get);
+    cfg.service(text_item_get);
 }

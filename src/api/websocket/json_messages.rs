@@ -52,3 +52,32 @@ pub struct UploadUpdate {
 pub struct UploadDelete {
     pub uuid: Uuid,
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct TextItemAdd {
+    pub uuid: Uuid,
+    pub stroke_width: f64,
+    pub max_width: i32,
+    pub max_height: i32,
+    pub color: String,
+    pub content_text: String,
+    pub offset_dx: f64,
+    pub offset_dy: f64,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct TextItemUpdate {
+    pub uuid: Uuid,
+    pub stroke_width: f64,
+    pub max_width: i32,
+    pub max_height: i32,
+    pub color: String,
+    pub content_text: String,
+    pub offset_dx: f64,
+    pub offset_dy: f64,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct TextItemDelete {
+    pub uuid: Uuid,
+}
