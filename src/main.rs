@@ -3,7 +3,7 @@ extern crate actix_web;
 use std::{env, io};
 use std::error::Error;
 
-use actix_web::{App, HttpServer, middleware, web};
+use actix_web::{App, HttpServer, middleware, web, error, HttpResponse};
 use futures::TryFutureExt;
 use scylla::Session;
 
@@ -56,7 +56,12 @@ async fn start_webserver(session: Arc<Session>) -> Result<(), Box<dyn Error>> {
         App::new()
             .data(Arc::clone(&session))
             .data(websocket_lobby_server.clone())
-
+            .app_data(web::PayloadConfig::new(usize::MAX))
+            .app_data(
+                // Json extractor configuration for this resource.
+                web::JsonConfig::default()
+                    .limit(usize::MAX) // Limit request payload size
+            )
 // enable logger - always register actix-web Logger middleware last
             .wrap(middleware::Logger::default())
 // register HTTP requests handlers
@@ -70,6 +75,7 @@ async fn start_webserver(session: Arc<Session>) -> Result<(), Box<dyn Error>> {
             .service(web::scope("/toolbar-options/figure").configure(api::toolbar_options::figure::init_routes))
             .service(web::scope("/toolbar-options/background").configure(api::toolbar_options::background::init_routes))
             .service(web::scope("/whiteboard").configure(api::whiteboard_data::init_routes))
+            .service(web::scope("/offline-whiteboard").configure(api::offline_whiteboard::init_routes))
     //         Websocket
             .service(web::scope("/ws").configure(api::websocket::start_connection::init_routes))
     )
