@@ -19,7 +19,7 @@ pub struct InputImport {
 
 #[derive(Serialize, Deserialize)]
 pub struct InputImportUpload {
-    pub uuid: String,
+    pub uuid: Uuid,
     pub upload_type: i32,
     pub offset_dx: f64,
     pub offset_dy: f64,

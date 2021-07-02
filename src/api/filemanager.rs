@@ -15,6 +15,9 @@ use std::future::Future;
 use async_recursion::async_recursion;
 use crate::db::models::ext_file::{NewGetExtWhiteboard, NewDeleteExtWhiteboard, ReadGetExtWhiteboard};
 use crate::db::ext_filemanager::{get_ext_whiteboard, delete_ext_whiteboard};
+use crate::db::websocket::scribble::scribble_delete_whiteboard;
+use crate::db::websocket::upload::upload_delete_whiteboard;
+use crate::db::websocket::textitem::text_item_delete_whiteboard;
 
 #[derive(Serialize, Deserialize)]
 struct GetDirectoryResponse {
@@ -181,6 +184,9 @@ pub async fn whiteboard_delete(auth: AuthorizationService, whiteboard: web::Json
     delete_whiteboard(&session, NewDeleteWhiteboard {
         id: whiteboard.id
     }).await.expect("Cant delete Whiteboard");
+    scribble_delete_whiteboard(&session, &whiteboard.id).await;
+    upload_delete_whiteboard(&session, &whiteboard.id).await;
+    text_item_delete_whiteboard(&session, &whiteboard.id).await;
     HttpResponse::Ok().body("Whiteboard deleted")
 }
 
@@ -196,6 +202,7 @@ pub fn parse_dir_uuid(directory: String) -> Uuid {
     uuid
 }
 
+// TODO: Add Deletion of Scribbles Uploads and TextItems
 #[async_recursion]
 async fn delete_sub_directory(session: &Arc<Session>, new_get_delete_directory: NewGetDirectory) {
     if let Some(rows) = get_directory(&session, new_get_delete_directory).await {
@@ -230,6 +237,9 @@ async fn delete_sub_directory(session: &Arc<Session>, new_get_delete_directory: 
             delete_whiteboard(&session, NewDeleteWhiteboard {
                 id: unwraped_row.id,
             }).await.expect("Cant delete sub whiteboard");
+            scribble_delete_whiteboard(&session, &unwraped_row.id).await;
+            upload_delete_whiteboard(&session, &unwraped_row.id).await;
+            text_item_delete_whiteboard(&session, &unwraped_row.id).await;
         }
     }
 }

@@ -31,3 +31,11 @@ pub async fn scribble_delete(session: Arc<Session>, scribble: ScribbleDelete) {
         ).await.expect("Could not delete scribble");
 }
 
+pub async fn scribble_delete_whiteboard(session_arc: &Arc<Session>, uuid: &Uuid) {
+    let session = Arc::clone(session_arc);
+    session
+        .query(
+            "DELETE FROM fluffy_board.wb_scribble WHERE whiteboard=?",
+            (uuid,)
+        ).await.expect("Could not delete scribble");
+}
