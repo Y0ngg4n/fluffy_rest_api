@@ -31,12 +31,3 @@ pub async fn upload_delete(session: Arc<Session>, upload: UploadDelete) {
         ).await.expect("Could not delete upload");
 }
 
-pub async fn upload_delete_whiteboard(session_arc: &Arc<Session>, uuid: &Uuid) {
-    let session = Arc::clone(session_arc);
-    session
-        .query(
-            "DELETE FROM fluffy_board.wb_upload WHERE whiteboard=?",
-            (uuid,)
-        ).await.expect("Could not delete upload");
-}
-

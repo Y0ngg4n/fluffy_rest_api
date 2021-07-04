@@ -31,15 +31,6 @@ pub async fn text_item_delete(session: Arc<Session>, scribble: TextItemDelete) {
         ).await.expect("Could not delete scribble");
 }
 
-pub async fn text_item_delete_whiteboard(session_arc: &Arc<Session>, uuid: &Uuid) {
-    let session = Arc::clone(session_arc);
-    session
-        .query(
-            "DELETE FROM fluffy_board.wb_textitem WHERE whiteboard=?",
-            (uuid,)
-        ).await.expect("Could not delete textitem");
-}
-
 
 
 

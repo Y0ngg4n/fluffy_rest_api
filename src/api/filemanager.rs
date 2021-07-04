@@ -15,9 +15,12 @@ use std::future::Future;
 use async_recursion::async_recursion;
 use crate::db::models::ext_file::{NewGetExtWhiteboard, NewDeleteExtWhiteboard, ReadGetExtWhiteboard};
 use crate::db::ext_filemanager::{get_ext_whiteboard, delete_ext_whiteboard};
-use crate::db::websocket::scribble::scribble_delete_whiteboard;
-use crate::db::websocket::upload::upload_delete_whiteboard;
-use crate::db::websocket::textitem::text_item_delete_whiteboard;
+use crate::db::websocket::scribble::{scribble_delete};
+use crate::db::websocket::upload::{upload_delete};
+use crate::db::websocket::textitem::{text_item_delete};
+use crate::db::whiteboard_data::{get_whiteboard_scribbles, get_whiteboard_upload, get_whiteboard_text_item};
+use crate::db::models::whiteboard::{ReadGetWhiteboardScribble, InputGetWhiteboardScribble, InputGetWhiteboardUpload, ReadGetWhiteboardUpload, InputGetWhiteboardTextItem, ReadGetWhiteboardTextItem};
+use crate::api::websocket::json_messages::{ScribbleDelete, UploadDelete, TextItemDelete};
 
 #[derive(Serialize, Deserialize)]
 struct GetDirectoryResponse {
@@ -184,9 +187,9 @@ pub async fn whiteboard_delete(auth: AuthorizationService, whiteboard: web::Json
     delete_whiteboard(&session, NewDeleteWhiteboard {
         id: whiteboard.id
     }).await.expect("Cant delete Whiteboard");
-    scribble_delete_whiteboard(&session, &whiteboard.id).await;
-    upload_delete_whiteboard(&session, &whiteboard.id).await;
-    text_item_delete_whiteboard(&session, &whiteboard.id).await;
+    delete_all_scribbles_from_whiteboard(&session, InputGetWhiteboardScribble{whiteboard: whiteboard.id, permission_id: whiteboard.id}).await;
+    delete_all_uploads_from_whiteboard(&session, InputGetWhiteboardUpload{whiteboard: whiteboard.id, permission_id: whiteboard.id}).await;
+    delete_all_textitems_from_whiteboard(&session, InputGetWhiteboardTextItem{whiteboard: whiteboard.id, permission_id: whiteboard.id}).await;
     HttpResponse::Ok().body("Whiteboard deleted")
 }
 
@@ -237,12 +240,41 @@ async fn delete_sub_directory(session: &Arc<Session>, new_get_delete_directory: 
             delete_whiteboard(&session, NewDeleteWhiteboard {
                 id: unwraped_row.id,
             }).await.expect("Cant delete sub whiteboard");
-            scribble_delete_whiteboard(&session, &unwraped_row.id).await;
-            upload_delete_whiteboard(&session, &unwraped_row.id).await;
-            text_item_delete_whiteboard(&session, &unwraped_row.id).await;
+            // TODO: Change to Batch statements
+            delete_all_scribbles_from_whiteboard(&session, InputGetWhiteboardScribble{ whiteboard: unwraped_row.id, permission_id: unwraped_row.id}).await;
+            delete_all_uploads_from_whiteboard(&session, InputGetWhiteboardUpload { whiteboard: unwraped_row.id, permission_id: unwraped_row.id}).await;
+            delete_all_textitems_from_whiteboard(&session, InputGetWhiteboardTextItem{ whiteboard: unwraped_row.id, permission_id: unwraped_row.id}).await;
         }
     }
 }
+
+async fn delete_all_scribbles_from_whiteboard(session: &Arc<Session>, whiteboard: InputGetWhiteboardScribble){
+    if let Some(rows) = get_whiteboard_scribbles(&session, whiteboard).await {
+        for row in rows.into_typed::<ReadGetWhiteboardScribble>() {
+            let unwraped_row = row.unwrap();
+            scribble_delete(session.clone(), ScribbleDelete{uuid: unwraped_row.id}).await;
+        }
+    }
+}
+
+async fn delete_all_uploads_from_whiteboard(session: &Arc<Session>, whiteboard: InputGetWhiteboardUpload){
+    if let Some(rows) = get_whiteboard_upload(&session, whiteboard).await {
+        for row in rows.into_typed::<ReadGetWhiteboardUpload>() {
+            let unwraped_row = row.unwrap();
+            upload_delete(session.clone(), UploadDelete{uuid: unwraped_row.id}).await;
+        }
+    }
+}
+
+async fn delete_all_textitems_from_whiteboard(session: &Arc<Session>, whiteboard: InputGetWhiteboardTextItem){
+    if let Some(rows) = get_whiteboard_text_item(&session, whiteboard).await {
+        for row in rows.into_typed::<ReadGetWhiteboardTextItem>() {
+            let unwraped_row = row.unwrap();
+            text_item_delete(session.clone(), TextItemDelete{uuid: unwraped_row.id}).await;
+        }
+    }
+}
+
 
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(directory_get);
