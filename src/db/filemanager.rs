@@ -5,7 +5,7 @@ use std::sync::Arc;
 use scylla::frame::value::Timestamp;
 use uuid::Uuid;
 use scylla::frame::response::result::Row;
-use crate::db::models::file::{NewCreateDirectory, InputRenameDirectory, NewRenameDirectory, InputDeleteDirectory, NewCreateWhiteboard, NewRenameWhiteboard, InputDeleteWhiteboard, NewGetDirectory, NewGetWhiteboard, NewDeleteDirectory, ReadGetWhiteboard, NewDeleteWhiteboard};
+use crate::db::models::file::{NewCreateDirectory, InputRenameDirectory, NewRenameDirectory, InputDeleteDirectory, NewCreateWhiteboard, NewRenameWhiteboard, InputDeleteWhiteboard, NewGetDirectory, NewGetWhiteboard, NewDeleteDirectory, ReadGetWhiteboard, NewDeleteWhiteboard, NewMoveWhiteboard, NewMoveDirectory};
 
 pub async fn get_directory(session_arc: &Arc<Session>, directory: NewGetDirectory) -> Option<Vec<Row>> {
     let session = Arc::clone(session_arc);
@@ -35,6 +35,17 @@ pub async fn rename_directory(session_arc: &Arc<Session>, directory: NewRenameDi
         .query(
             "UPDATE fluffy_board.wb_directory SET filename=? WHERE id=?;",
             (directory.filename, directory.id),
+        )
+        .await?;
+    Ok(())
+}
+
+pub async fn move_directory(session_arc: &Arc<Session>, directory: NewMoveDirectory) -> Result<(), Box<dyn Error>> {
+    let session = Arc::clone(session_arc);
+    session
+        .query(
+            "UPDATE fluffy_board.wb_directory SET parent=? WHERE id=?;",
+            (directory.parent, directory.id),
         )
         .await?;
     Ok(())
@@ -81,6 +92,17 @@ pub async fn rename_whiteboard(session_arc: &Arc<Session>, whiteboard: NewRename
         .query(
             "UPDATE fluffy_board.whiteboard SET name=? WHERE id=?;",
             (whiteboard.name, whiteboard.id),
+        )
+        .await?;
+    Ok(())
+}
+
+pub async fn move_whiteboard(session_arc: &Arc<Session>, whiteboard: NewMoveWhiteboard) -> Result<(), Box<dyn Error>> {
+    let session = Arc::clone(session_arc);
+    session
+        .query(
+            "UPDATE fluffy_board.whiteboard SET directory=? WHERE id=?;",
+            (whiteboard.directory, whiteboard.id),
         )
         .await?;
     Ok(())

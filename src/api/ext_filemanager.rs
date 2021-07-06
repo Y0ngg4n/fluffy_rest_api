@@ -7,11 +7,11 @@ use crate::db::models::file::{InputGetDirectory, ReadGetWhiteboard};
 use std::sync::Arc;
 use scylla::{Session, IntoTypedRows};
 use uuid::Uuid;
-use crate::db::models::ext_file::{InputCreateExtWhiteboard, NewCreateExtWhiteboard, ReadGetExtWhiteboard, NewGetOtherWhiteboard, NewDeleteExtWhiteboard, InputDeleteExtWhiteboard, InputGetExtWhiteboard, NewGetExtWhiteboard};
+use crate::db::models::ext_file::{InputCreateExtWhiteboard, NewCreateExtWhiteboard, ReadGetExtWhiteboard, NewGetOtherWhiteboard, NewDeleteExtWhiteboard, InputDeleteExtWhiteboard, InputGetExtWhiteboard, NewGetExtWhiteboard, NewMoveExtWhiteboard, InputMoveExtWhiteboard};
 use chrono::format::Numeric::Timestamp;
 use chrono::Duration;
 use crate::api::filemanager::{parse_dir_uuid, parse_own_uuid};
-use crate::db::ext_filemanager::{create_ext_whiteboard, delete_ext_whiteboard, get_ext_whiteboard};
+use crate::db::ext_filemanager::{create_ext_whiteboard, delete_ext_whiteboard, get_ext_whiteboard, move_ext_whiteboard};
 use crate::db::ext_filemanager::get_other_whiteboard;
 
 #[derive(Serialize, Deserialize)]
@@ -116,9 +116,21 @@ pub async fn whiteboard_ext_delete(auth: AuthorizationService, whiteboard: web::
     HttpResponse::Ok().body("Whiteboard deleted")
 }
 
+#[post("/whiteboard/move")]
+pub async fn whiteboard_ext_move(auth: AuthorizationService, whiteboard: web::Json<InputMoveExtWhiteboard>,
+                                   session: web::Data<Arc<Session>>) -> impl Responder {
+    let directory_uuid = parse_dir_uuid(whiteboard.directory.clone());
+    move_ext_whiteboard(&session, NewMoveExtWhiteboard {
+        id: whiteboard.id,
+        directory: directory_uuid,
+    }).await.expect("Cant move Whiteboard");
+    HttpResponse::Ok().body("Whiteboard moved")
+}
+
 pub fn init_routes(cfg: &mut web::ServiceConfig)
 {
     cfg.service(whiteboard_ext_get);
     cfg.service(whiteboard_ext_create);
+    cfg.service(whiteboard_ext_move);
     cfg.service(whiteboard_ext_delete);
 }

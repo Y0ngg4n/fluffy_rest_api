@@ -46,9 +46,20 @@ pub struct InputRenameDirectory{
     pub filename: String,
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct InputMoveDirectory{
+    pub id: Uuid,
+    pub parent: String,
+}
+
 pub struct NewRenameDirectory{
     pub id: Uuid,
     pub filename: String,
+}
+
+pub struct NewMoveDirectory{
+    pub id: Uuid,
+    pub parent: Uuid,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -108,9 +119,20 @@ pub struct InputRenameWhiteboard{
     pub name: String,
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct InputMoveWhiteboard{
+    pub id: Uuid,
+    pub directory: String,
+}
+
 pub struct NewRenameWhiteboard{
     pub id: Uuid,
     pub name: String,
+}
+
+pub struct NewMoveWhiteboard{
+    pub id: Uuid,
+    pub directory: Uuid,
 }
 
 #[derive(Serialize, Deserialize)]

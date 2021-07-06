@@ -6,8 +6,8 @@ use crate::middlewares::auth::AuthorizationService;
 use std::sync::Arc;
 use scylla::{Session, IntoTypedRows};
 use uuid::Uuid;
-use crate::db::models::file::{InputCreateDirectory, NewCreateDirectory, InputRenameDirectory, NewRenameDirectory, InputDeleteDirectory, NewCreateWhiteboard, InputCreateWhiteboard, InputRenameWhiteboard, NewRenameWhiteboard, InputDeleteWhiteboard, NewGetDirectory, InputGetDirectory, ReadGetDirectory, InputGetWhiteboard, NewGetWhiteboard, ReadGetWhiteboard, NewDeleteDirectory, NewDeleteWhiteboard};
-use crate::db::filemanager::{create_directory, rename_directory, delete_directory, create_whiteboard, rename_whiteboard, delete_whiteboard, get_directory, get_whiteboard};
+use crate::db::models::file::{InputCreateDirectory, NewCreateDirectory, InputRenameDirectory, NewRenameDirectory, InputDeleteDirectory, NewCreateWhiteboard, InputCreateWhiteboard, InputRenameWhiteboard, NewRenameWhiteboard, InputDeleteWhiteboard, NewGetDirectory, InputGetDirectory, ReadGetDirectory, InputGetWhiteboard, NewGetWhiteboard, ReadGetWhiteboard, NewDeleteDirectory, NewDeleteWhiteboard, NewMoveWhiteboard, InputMoveWhiteboard, InputMoveDirectory, NewMoveDirectory};
+use crate::db::filemanager::{create_directory, rename_directory, delete_directory, create_whiteboard, rename_whiteboard, delete_whiteboard, get_directory, get_whiteboard, move_whiteboard, move_directory};
 use scylla::frame::value::Timestamp;
 use chrono::{Duration, Utc};
 use std::error::Error;
@@ -77,6 +77,18 @@ pub async fn directory_create(auth: AuthorizationService, directory: web::Json<I
     };
     create_directory(&session, new_directory).await.expect("Cant create Directory");
     HttpResponse::Ok().json(CreateDirectoryResponse { id: new_uuid.to_string(), parent: parent_uuid.to_string() })
+}
+
+#[post("/directory/move")]
+pub async fn directory_move(auth: AuthorizationService, directory: web::Json<InputMoveDirectory>,
+                              session: web::Data<Arc<Session>>) -> impl Responder {
+    let directory_uuid = parse_dir_uuid(directory.parent.clone());
+    let renamed_dir = NewMoveDirectory {
+        id: directory.id,
+        parent: directory_uuid,
+    };
+    move_directory(&session, renamed_dir).await.expect("Cant move Directory");
+    HttpResponse::Ok().body("Directory moved")
 }
 
 #[post("/directory/rename")]
@@ -181,6 +193,18 @@ pub async fn whiteboard_rename(auth: AuthorizationService, whiteboard: web::Json
     HttpResponse::Ok().body("Directory renamed")
 }
 
+#[post("/whiteboard/move")]
+pub async fn whiteboard_move(auth: AuthorizationService, whiteboard: web::Json<InputMoveWhiteboard>,
+                               session: web::Data<Arc<Session>>) -> impl Responder {
+    let directory_uuid = parse_dir_uuid(whiteboard.directory.clone());
+    let renamed_whiteboard = NewMoveWhiteboard {
+        id: whiteboard.id,
+        directory: directory_uuid.clone(),
+    };
+    move_whiteboard(&session, renamed_whiteboard).await.expect("Cant move Whiteboard");
+    HttpResponse::Ok().body("Whiteboard moved")
+}
+
 #[post("/whiteboard/delete")]
 pub async fn whiteboard_delete(auth: AuthorizationService, whiteboard: web::Json<InputDeleteWhiteboard>,
                                session: web::Data<Arc<Session>>) -> impl Responder {
@@ -280,9 +304,11 @@ pub fn init_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(directory_get);
     cfg.service(directory_create);
     cfg.service(directory_rename);
+    cfg.service(directory_move);
     cfg.service(directory_delete);
     cfg.service(whiteboard_get);
     cfg.service(whiteboard_create);
     cfg.service(whiteboard_rename);
+    cfg.service(whiteboard_move);
     cfg.service(whiteboard_delete);
 }

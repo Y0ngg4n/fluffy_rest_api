@@ -24,7 +24,6 @@ pub async fn scribble_update(session: Arc<Session>, scribble: ScribbleUpdate) {
 }
 
 pub async fn scribble_delete(session: Arc<Session>, scribble: ScribbleDelete) {
-    println!("Scribble delete");
     session
         .query(
             "DELETE FROM fluffy_board.wb_scribble WHERE id=?",

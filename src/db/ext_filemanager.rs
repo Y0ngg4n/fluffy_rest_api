@@ -7,7 +7,7 @@ use crate::db::models::file::InputGetDirectory;
 use std::sync::Arc;
 use scylla::{Session, IntoTypedRows};
 use uuid::Uuid;
-use crate::db::models::ext_file::{InputCreateExtWhiteboard, NewCreateExtWhiteboard, ReadGetExtWhiteboard, NewGetExtWhiteboard, NewGetOtherWhiteboard, NewDeleteExtWhiteboard};
+use crate::db::models::ext_file::{InputCreateExtWhiteboard, NewCreateExtWhiteboard, ReadGetExtWhiteboard, NewGetExtWhiteboard, NewGetOtherWhiteboard, NewDeleteExtWhiteboard, NewMoveExtWhiteboard};
 use chrono::format::Numeric::Timestamp;
 use chrono::Duration;
 use crate::api::filemanager::{parse_dir_uuid, parse_own_uuid};
@@ -46,6 +46,17 @@ pub async fn create_ext_whiteboard(session_arc: &Arc<Session>, whiteboard: NewCr
                 (whiteboard.id, whiteboard.account, whiteboard.directory, whiteboard.name,
                  whiteboard.edit, whiteboard.original, whiteboard.permission_id)
             ).await?;
+    Ok(())
+}
+
+pub async fn move_ext_whiteboard(session_arc: &Arc<Session>, whiteboard: NewMoveExtWhiteboard) -> Result<(), Box<dyn Error>> {
+    let session = Arc::clone(session_arc);
+    session
+        .query(
+            "UPDATE fluffy_board.ext_whiteboard SET directory=? WHERE id=?;",
+            (whiteboard.directory, whiteboard.id),
+        )
+        .await?;
     Ok(())
 }
 

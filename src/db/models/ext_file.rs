@@ -56,6 +56,17 @@ pub struct InputDeleteExtWhiteboard{
     pub id: Uuid,
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct InputMoveExtWhiteboard{
+    pub id: Uuid,
+    pub directory: String,
+}
+
+pub struct NewMoveExtWhiteboard{
+    pub id: Uuid,
+    pub directory: Uuid,
+}
+
 pub struct NewDeleteExtWhiteboard{
     pub id: Uuid,
 }
