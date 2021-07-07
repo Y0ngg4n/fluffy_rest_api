@@ -3,7 +3,7 @@ extern crate actix_web;
 use std::{env, io};
 use std::error::Error;
 
-use actix_web::{App, HttpServer, middleware, web, error, HttpResponse};
+use actix_web::{App, HttpServer, middleware, web, error, HttpResponse, http};
 use futures::TryFutureExt;
 use scylla::Session;
 
@@ -25,6 +25,7 @@ use awc::{
 use bytes::Bytes;
 use futures::stream::{SplitSink, StreamExt};
 use crate::api::websocket::lobby::Lobby;
+use actix_cors::Cors;
 
 mod db;
 mod api;
@@ -52,8 +53,11 @@ async fn start_webserver(session: Arc<Session>) -> Result<(), Box<dyn Error>> {
     let websocket_lobby_server = Lobby::default(&session).start(); //create and spin up a lobby
     // Starting Webserver
     println!("Starting Webserver");
-    HttpServer::new(move ||
+    HttpServer::new(move || {
+        let cors = Cors::default().supports_credentials().allow_any_origin().allow_any_header().allow_any_method();
+
         App::new()
+            .wrap(cors)
             .data(Arc::clone(&session))
             .data(websocket_lobby_server.clone())
             .app_data(web::PayloadConfig::new(usize::MAX))
@@ -76,9 +80,9 @@ async fn start_webserver(session: Arc<Session>) -> Result<(), Box<dyn Error>> {
             .service(web::scope("/toolbar-options/background").configure(api::toolbar_options::background::init_routes))
             .service(web::scope("/whiteboard").configure(api::whiteboard_data::init_routes))
             .service(web::scope("/offline-whiteboard").configure(api::offline_whiteboard::init_routes))
-    //         Websocket
+            //         Websocket
             .service(web::scope("/ws").configure(api::websocket::start_connection::init_routes))
-    )
+    })
         .bind("0.0.0.0:9090")?
         .run()
         .await.expect("Could not start Webserver");
