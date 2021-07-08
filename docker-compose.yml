@@ -13,8 +13,8 @@ services:
     depends_on:
       - scylla
     environment:
-      - JWT_AUTH_SECRET="REPLACE_WITH_SECRET"
-      - SCYLLA_URI="scylla:9042"
+      - JWT_AUTH_SECRET=REPLACE_WITH_SECRET
+      - SCYLLA_URI=scylla:9042
 
 volumes:
   scylladb:
