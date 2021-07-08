@@ -6,6 +6,7 @@ use scylla::transport::Compression;
 
 pub async fn connect() -> Result<Session, Box<dyn Error>> {
     println!("Connecting to scylla db ...");
+    println!("{}", std::env::var("SCYLLA_URI").unwrap());
     let uri = std::env::var("SCYLLA_URI")
         .unwrap_or_else(|_| "127.0.0.1:9042".to_string());
 
