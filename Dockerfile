@@ -7,7 +7,7 @@ RUN rustup target add x86_64-unknown-linux-musl
 WORKDIR /usr/src/fluffy_rest_api
 COPY . .
 
-RUN RUSTFLAGS=-Clinker=musl-gcc cargo install -—release —target=x86_64-unknown-linux-musl
+RUN RUSTFLAGS=-Clinker=musl-gcc cargo install --release --target=x86_64-unknown-linux-musl
 
 FROM alpine:latest
 
