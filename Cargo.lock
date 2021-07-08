@@ -394,6 +394,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "arc-swap"
+version = "1.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e906254e445520903e7fc9da4f709886c84ae4bc4ddaf0e093188d66df4dc820"
+
+[[package]]
 name = "argon2"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1867,10 +1873,11 @@ checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
 
 [[package]]
 name = "scylla"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9175f0f9ccde56690c2006005e0a3ab1b5017664ce7ac180405d5690ee8cca66"
+checksum = "139466302bb39f579a934b4b50f550257390b3a24ef971f655c0d662f408b7ac"
 dependencies = [
+ "arc-swap",
  "bigdecimal",
  "byteorder",
  "bytes 1.0.1",
