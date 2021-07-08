@@ -1,12 +1,12 @@
 FROM rust as build
 
-WORKDIR /usr/src/api-service
+WORKDIR /usr/src/fluffy_rest_api
 COPY . .
 
 RUN cargo install --path .
 
 FROM alpine:latest
 
-COPY --from=build /usr/local/cargo/bin/fluffy_rest_api /usr/local/bin/api-service
+COPY --from=build /usr/local/cargo/bin/fluffy_rest_api /usr/local/bin/fluffy_rest_api
 
-CMD ["api-service"]
+CMD ["fluffy_rest_api"]
