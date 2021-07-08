@@ -1,4 +1,4 @@
-FROM rust:1.43.1 as build
+FROM rust as build
 
 WORKDIR /usr/src/api-service
 COPY . .
