@@ -1,15 +1,12 @@
 FROM rust as build
-
-RUN apt-get update
-RUN apt-get install musl-tools -y
-RUN rustup target add x86_64-unknown-linux-musl
+ENV PKG_CONFIG_ALLOW_CROSS=1
 
 WORKDIR /usr/src/fluffy_rest_api
 COPY . .
 
-RUN RUSTFLAGS=-Clinker=musl-gcc cargo install --release --target=x86_64-unknown-linux-musl
+RUN cargo install --path .
 
-FROM alpine:latest
+FROM gcr.io/distroless/cc-debian10
 
 COPY --from=build /usr/local/cargo/bin/fluffy_rest_api /usr/local/bin/fluffy_rest_api
 
