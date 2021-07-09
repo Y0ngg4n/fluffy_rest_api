@@ -26,7 +26,7 @@ pub async fn upload_update(session: Arc<Session>, upload: UploadUpdate) {
 pub async fn upload_image_data_update(session: Arc<Session>, upload: UploadImageDataUpdate) {
     session
         .query(
-            "UPDATE fluffy_board.wb_upload SET image_data WHERE id=?",
+            "UPDATE fluffy_board.wb_upload SET image_data=? WHERE id=?",
             (upload.image_data, upload.uuid)
         ).await.expect("Could not update upload");
 }
