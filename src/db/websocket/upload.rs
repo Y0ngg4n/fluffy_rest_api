@@ -5,7 +5,7 @@ use std::error::Error;
 use scylla::frame::response::result::Row;
 use uuid::Uuid;
 use crate::db::models::toolbar_options::NewUpdatePencil;
-use crate::api::websocket::json_messages::{ScribbleAdd, ScribbleUpdate, ScribbleDelete, UploadAdd, UploadUpdate, UploadDelete};
+use crate::api::websocket::json_messages::{ScribbleAdd, ScribbleUpdate, ScribbleDelete, UploadAdd, UploadUpdate, UploadDelete, UploadImageDataUpdate};
 
 pub async fn upload_add(session: Arc<Session>, upload: UploadAdd, whiteboard: Uuid) {
     session
@@ -20,6 +20,14 @@ pub async fn upload_update(session: Arc<Session>, upload: UploadUpdate) {
         .query(
             "UPDATE fluffy_board.wb_upload SET offset_dx=?, offset_dy=? WHERE id=?",
             (upload.offset_dx, upload.offset_dy, upload.uuid)
+        ).await.expect("Could not update upload");
+}
+
+pub async fn upload_image_data_update(session: Arc<Session>, upload: UploadImageDataUpdate) {
+    session
+        .query(
+            "UPDATE fluffy_board.wb_upload SET image_data WHERE id=?",
+            (upload.image_data, upload.uuid)
         ).await.expect("Could not update upload");
 }
 

@@ -48,6 +48,13 @@ pub struct UploadUpdate {
     pub offset_dy: f64,
 }
 
+
+#[derive(Serialize, Deserialize)]
+pub struct UploadImageDataUpdate {
+    pub uuid: Uuid,
+    pub image_data: Vec<u8>,
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct UploadDelete {
     pub uuid: Uuid,
