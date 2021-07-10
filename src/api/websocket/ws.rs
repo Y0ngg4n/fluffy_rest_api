@@ -20,16 +20,18 @@ pub struct WsConn {
     hb: Instant,
     id: Uuid,
     user: Uuid,
+    username: String,
 }
 
 impl WsConn {
-    pub fn new(room: Uuid, user: Uuid, lobby: Addr<Lobby>) -> WsConn {
+    pub fn new(room: Uuid, user: Uuid, username: String, lobby: Addr<Lobby>) -> WsConn {
         WsConn {
             id: Uuid::new_v4(),
             room,
             hb: Instant::now(),
             lobby_addr: lobby,
             user,
+            username
         }
     }
 }
@@ -47,6 +49,7 @@ impl Actor for WsConn {
                 lobby_id: self.room,
                 self_id: self.id,
                 user: self.user,
+                username: self.username.clone()
             })
             .into_actor(self)
             .then(|res, _, ctx| {

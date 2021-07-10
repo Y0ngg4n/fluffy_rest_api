@@ -53,6 +53,7 @@ pub struct ResponseGetWhiteboardTextItem{
     pub content_text: String,
     pub offset_dx: f64,
     pub offset_dy: f64,
+    pub rotation: f64,
 }
 
 #[post("/scribble/get")]
@@ -124,7 +125,8 @@ pub async fn text_item_get(auth: AuthorizationService, textitem: web::Json<Input
                     color: unwraped_row.color,
                     content_text: unwraped_row.content_text,
                     offset_dx: unwraped_row.offset_dx,
-                    offset_dy: unwraped_row.offset_dy
+                    offset_dy: unwraped_row.offset_dy,
+                    rotation: unwraped_row.rotation
                 });
             }
             HttpResponse::Ok().json(rows_vec)

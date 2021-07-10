@@ -29,6 +29,16 @@ pub async fn get_user_by_email(session_arc: &Arc<Session>, email: String) -> Opt
         .await.ok()?.rows
 }
 
+pub async fn get_user_by_id(session_arc: &Arc<Session>, id: Uuid) -> Option<Vec<Row>> {
+    let session = Arc::clone(session_arc);
+    session
+        .query(
+            "SELECT * FROM fluffy_board.account WHERE id=?;",
+            (id, ),
+        )
+        .await.ok()?.rows
+}
+
 pub async fn delete_user_by_id(session_arc: &Arc<Session>, id: Uuid) -> Result<(), Box<dyn Error>> {
     let session = Arc::clone(session_arc);
     session

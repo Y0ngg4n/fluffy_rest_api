@@ -10,16 +10,16 @@ use crate::api::websocket::json_messages::{ScribbleAdd, ScribbleUpdate, Scribble
 pub async fn text_item_add(session: Arc<Session>, textItem: TextItemAdd, whiteboard: Uuid) {
     session
         .query(
-            "INSERT INTO fluffy_board.wb_textitem (id, whiteboard, stroke_width, max_width, max_height, color, content_text, offset_dx, offset_dy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);",
-            (textItem.uuid, whiteboard, textItem.stroke_width, textItem.max_width, textItem.max_height, textItem.color, textItem.content_text, textItem.offset_dx, textItem.offset_dy)
+            "INSERT INTO fluffy_board.wb_textitem (id, whiteboard, stroke_width, max_width, max_height, color, content_text, offset_dx, offset_dy, rotation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+            (textItem.uuid, whiteboard, textItem.stroke_width, textItem.max_width, textItem.max_height, textItem.color, textItem.content_text, textItem.offset_dx, textItem.offset_dy, textItem.rotation),
         ).await.expect("Could not insert textitem");
 }
 
 pub async fn text_item_update(session: Arc<Session>, textItem: TextItemUpdate) {
     session
         .query(
-            "UPDATE fluffy_board.wb_textitem SET stroke_width=?, max_width=?, max_height=?, color=?, content_text=?, offset_dx=?, offset_dy=? WHERE id=?",
-            (textItem.stroke_width, textItem.max_width, textItem.max_height, textItem.color, textItem.content_text, textItem.offset_dx, textItem.offset_dy, textItem.uuid)
+            "UPDATE fluffy_board.wb_textitem SET stroke_width=?, max_width=?, max_height=?, color=?, content_text=?, offset_dx=?, offset_dy=?, rotation=? WHERE id=?",
+            (textItem.stroke_width, textItem.max_width, textItem.max_height, textItem.color, textItem.content_text, textItem.offset_dx, textItem.offset_dy, textItem.rotation, textItem.uuid),
         ).await.expect("Could not update textitem");
 }
 
@@ -27,7 +27,7 @@ pub async fn text_item_delete(session: Arc<Session>, scribble: TextItemDelete) {
     session
         .query(
             "DELETE FROM fluffy_board.wb_textitem WHERE id=?",
-            (scribble.uuid,)
+            (scribble.uuid, ),
         ).await.expect("Could not delete scribble");
 }
 

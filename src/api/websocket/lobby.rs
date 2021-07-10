@@ -83,7 +83,7 @@ impl Handler<Connect> for Lobby {
             .unwrap()
             .iter()
             .filter(|conn_id| *conn_id.to_owned() != msg.self_id)
-            .for_each(|conn_id| self.send_message(&format!("{} just joined!", msg.self_id), conn_id));
+            .for_each(|conn_id| self.send_message(&format!("user-join#{}#{}#", msg.user, msg.username), conn_id));
 
         self.sessions.insert(
             msg.self_id,

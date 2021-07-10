@@ -70,6 +70,7 @@ pub struct TextItemAdd {
     pub content_text: String,
     pub offset_dx: f64,
     pub offset_dy: f64,
+    pub rotation: f64,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -82,6 +83,7 @@ pub struct TextItemUpdate {
     pub content_text: String,
     pub offset_dx: f64,
     pub offset_dy: f64,
+    pub rotation: f64,
 }
 
 #[derive(Serialize, Deserialize)]

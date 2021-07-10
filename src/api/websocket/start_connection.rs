@@ -5,7 +5,7 @@ use uuid::Uuid;
 use crate::api::websocket::ws::WsConn;
 use crate::api::websocket::lobby::Lobby;
 use crate::api::websocket::websocket_tools;
-use scylla::Session;
+use scylla::{Session, IntoTypedRows};
 use std::sync::Arc;
 
 use actix_web::error::PayloadError;
@@ -13,6 +13,10 @@ use ws::{handshake, WebsocketContext};
 use actix_http::ws::{Codec, Message, ProtocolError};
 use bytes::Bytes;
 use actix::prelude::Stream;
+use crate::db::account::{get_user_by_id};
+use crate::db::models::user::ReadUser;
+use actix_http::Response;
+use actix_http::body::Body;
 
 // Code from https://github.com/antholeole/actix-sockets.git
 // Thank you soooo much :)
@@ -24,16 +28,27 @@ pub async fn start_connection(
     Path((whiteboard, jwt_token)): Path<(Uuid, String)>,
     srv: Data<Addr<Lobby>>,
     session: web::Data<Arc<Session>>
-) -> Result<HttpResponse, Error> {
+) ->  Result<HttpResponse, Error> {
     let auth_result = websocket_tools::check_auth(jwt_token.as_str());
     if auth_result.authenticated {
-        let ws = WsConn::new(
-            whiteboard,
-            auth_result.uuid,
-            srv.get_ref().clone(),
-        );
-        let resp = start_with_codec(ws, &req, stream, Codec::new().max_size(usize::MAX))?;
-        Ok(resp)
+        if let Some(rows) = get_user_by_id(&session, auth_result.uuid.clone()).await {
+            if rows.is_empty() {
+                Ok(HttpResponse::Unauthorized().body("User does not exist"))
+            } else {
+                let row = rows.into_typed::<ReadUser>().next();
+                let read_row = row.unwrap().unwrap();
+                let ws = WsConn::new(
+                    whiteboard,
+                    auth_result.uuid,
+                        read_row.name.clone(),
+                    srv.get_ref().clone(),
+                );
+                let resp = start_with_codec(ws, &req, stream, Codec::new().max_size(usize::MAX))?;
+                Ok(resp)
+            }
+        }else{
+            Ok(HttpResponse::Unauthorized().body("User does not exist"))
+        }
     } else {
         Ok(HttpResponse::Unauthorized().body("Unauthorized"))
     }

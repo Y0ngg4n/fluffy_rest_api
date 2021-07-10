@@ -286,6 +286,7 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
             content_text text, \
             offset_dx double, \
             offset_dy double, \
+            rotation double, \
             PRIMARY KEY(id) \
             )",
             &[],

@@ -10,6 +10,7 @@ pub struct WsMessage(pub String);
 pub struct Connect {
     pub addr: Recipient<WsMessage>,
     pub user: Uuid,
+    pub username: String,
     pub lobby_id: Uuid,
     pub self_id: Uuid,
 }
