@@ -90,3 +90,16 @@ pub struct TextItemUpdate {
 pub struct TextItemDelete {
     pub uuid: Uuid,
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct UserMove {
+    pub offset_dx: f64,
+    pub offset_dy: f64
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct UserMoveSend {
+    pub uuid: Uuid,
+    pub offset_dx: f64,
+    pub offset_dy: f64
+}

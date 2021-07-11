@@ -2,7 +2,7 @@ use actix::prelude::{Actor, Context, Handler, Recipient};
 use std::collections::{HashMap, HashSet};
 use uuid::Uuid;
 use crate::api::websocket::messages::{WsMessage, Disconnect, Connect, ClientActorMessage};
-use crate::api::websocket::json_messages::{ScribbleAdd, ScribbleUpdate, ScribbleDelete, UploadAdd, UploadUpdate, UploadDelete, TextItemAdd, TextItemUpdate, TextItemDelete, UploadImageDataUpdate};
+use crate::api::websocket::json_messages::{ScribbleAdd, ScribbleUpdate, ScribbleDelete, UploadAdd, UploadUpdate, UploadDelete, TextItemAdd, TextItemUpdate, TextItemDelete, UploadImageDataUpdate, UserMove, UserMoveSend};
 use crate::db::websocket::scribble::{scribble_add, scribble_update, scribble_delete};
 use std::sync::Arc;
 use scylla::Session;
@@ -199,6 +199,20 @@ impl Handler<ClientActorMessage> for Lobby {
                     println!("Send User join");
                     self.send_message(&format!("user-join#{}#{}#", client, username), &msg.id)
                 }
+            });
+        }else if msg.msg.starts_with("user-move#") {
+            // self.rooms.get(&msg.room_id).unwrap().
+            let json = msg.msg.replace("user-move#", "");
+            let parsed: UserMove = serde_json::from_str(&json).expect("Cant unwrap user-move json");
+            self.rooms.get(&msg.room_id).unwrap().iter().for_each(|client| if client.clone() != msg.id {
+                let user_move_send = UserMoveSend{
+                    uuid: msg.user,
+                    offset_dx: parsed.offset_dx,
+                    offset_dy: parsed.offset_dy
+                };
+                let mut message = String::from("user-move#");
+                message.push_str(serde_json::to_string(&user_move_send).unwrap().as_str());
+                self.send_message(message.as_str(), client)
             });
         }else {
             // Broadcast
