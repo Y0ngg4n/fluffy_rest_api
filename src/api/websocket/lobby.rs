@@ -216,7 +216,8 @@ impl Handler<ClientActorMessage> for Lobby {
                 let user_move_send = UserMoveSend{
                     uuid: msg.user,
                     offset_dx: parsed.offset_dx,
-                    offset_dy: parsed.offset_dy
+                    offset_dy: parsed.offset_dy,
+                    scale: parsed.scale
                 };
                 let mut message = String::from("user-move#");
                 message.push_str(serde_json::to_string(&user_move_send).unwrap().as_str());
