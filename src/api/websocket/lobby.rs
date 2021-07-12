@@ -18,6 +18,7 @@ pub struct Lobby {
     //self id to self
     rooms: HashMap<Uuid, HashSet<Uuid>>,
     //room id  to list of users id
+    user: HashMap<Uuid, Uuid>,
     usernames: HashMap<Uuid, String>,
     database_session: Arc<Session>,
 }
@@ -27,6 +28,7 @@ impl Lobby {
         Lobby {
             sessions: HashMap::new(),
             rooms: HashMap::new(),
+            user: HashMap::new(),
             usernames: HashMap::new(),
             database_session: session.clone(),
         }
@@ -65,7 +67,8 @@ impl Handler<Disconnect> for Lobby {
                 } else {
                     //only one in the lobby, remove it entirely
                     self.rooms.remove(&msg.room_id);
-                    self.usernames.remove(&msg.user);
+                    self.user.remove(&msg.id);
+                    self.usernames.remove(&msg.id);
                 }
             }
         }
@@ -79,6 +82,10 @@ impl Handler<Connect> for Lobby {
         self.rooms
             .entry(msg.lobby_id)
             .or_insert_with(HashSet::new).insert(msg.self_id);
+
+        self.user
+            .entry(msg.self_id.clone())
+            .or_insert(msg.user.clone());
 
         self.usernames
             .entry(msg.self_id.clone())
@@ -194,10 +201,11 @@ impl Handler<ClientActorMessage> for Lobby {
         }else if msg.msg.starts_with("connected-users#") {
             // self.rooms.get(&msg.room_id).unwrap().
             self.rooms.get(&msg.room_id).unwrap().iter().for_each(|client| if client.clone() != msg.id {
+                let user = self.user.get(client).unwrap();
                 let username = self.usernames.get(client).unwrap();
                 if client.clone() != msg.user.clone() {
                     println!("Send User join");
-                    self.send_message(&format!("user-join#{}#{}#", client, username), &msg.id)
+                    self.send_message(&format!("user-join#{}#{}#", user, username), &msg.id)
                 }
             });
         }else if msg.msg.starts_with("user-move#") {
