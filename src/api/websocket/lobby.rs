@@ -203,9 +203,7 @@ impl Handler<ClientActorMessage> for Lobby {
             self.rooms.get(&msg.room_id).unwrap().iter().for_each(|client| if client.clone() != msg.id {
                 let user = self.user.get(client).unwrap();
                 let username = self.usernames.get(client).unwrap();
-                if client.clone() != msg.user.clone() {
-                    println!("Send User join");
-                    self.send_message(&format!("user-join#{}#{}#", user, username), &msg.id)
+                if client.clone() != msg.user.clone() { self.send_message(&format!("user-join#{}#{}#", user, username), &msg.id)
                 }
             });
         }else if msg.msg.starts_with("user-move#") {
