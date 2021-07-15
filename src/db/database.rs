@@ -254,6 +254,7 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
             &[],
         )
         .await?;
+    // Upload
     session
         .query(
             "CREATE TABLE IF NOT EXISTS fluffy_board.wb_upload (\
@@ -274,6 +275,7 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
             &[],
         )
         .await?;
+    // TextItem
     session
         .query(
             "CREATE TABLE IF NOT EXISTS fluffy_board.wb_textitem (\
@@ -295,6 +297,26 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
     session
         .query(
             "CREATE INDEX IF NOT EXISTS ON fluffy_board.wb_textitem(whiteboard)",
+            &[],
+        )
+        .await?;
+    session
+        .query(
+            "CREATE TABLE IF NOT EXISTS fluffy_board.wb_bookmark (\
+            id UUID, \
+            whiteboard UUID, \
+            name text, \
+            offset_dx double, \
+            offset_dy double, \
+            scale double, \
+            PRIMARY KEY(id) \
+            )",
+            &[],
+        )
+        .await?;
+    session
+        .query(
+            "CREATE INDEX IF NOT EXISTS ON fluffy_board.wb_bookmark(whiteboard)",
             &[],
         )
         .await?;

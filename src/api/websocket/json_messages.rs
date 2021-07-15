@@ -105,3 +105,26 @@ pub struct UserMoveSend {
     pub offset_dy: f64,
     pub scale: f64
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct BookmarkAdd {
+    pub uuid: Uuid,
+    pub name: String,
+    pub offset_dx: f64,
+    pub offset_dy: f64,
+    pub scale: f64,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct BookmarkUpdate {
+    pub uuid: Uuid,
+    pub name: String,
+    pub offset_dx: f64,
+    pub offset_dy: f64,
+    pub scale: f64,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct BookmarkDelete {
+    pub uuid: Uuid,
+}

@@ -63,3 +63,19 @@ pub struct ReadGetWhiteboardTextItem {
     pub stroke_width: f64,
     pub whiteboard: Uuid
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct InputGetWhiteboardBookmark{
+    pub whiteboard: Uuid,
+    pub permission_id: Uuid,
+}
+
+#[derive(FromRow)]
+pub struct ReadGetWhiteboardBookmark {
+    pub id: Uuid,
+    pub name: String,
+    pub offset_dx: f64,
+    pub offset_dy: f64,
+    pub scale: f64,
+    pub whiteboard: Uuid
+}

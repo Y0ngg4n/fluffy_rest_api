@@ -15,8 +15,8 @@ use std::future::Future;
 use async_recursion::async_recursion;
 use crate::db::ext_filemanager::{get_ext_whiteboard, delete_ext_whiteboard};
 use crate::api::filemanager::{parse_own_uuid, parse_dir_uuid};
-use crate::db::whiteboard_data::{get_whiteboard_scribbles, get_whiteboard_upload, get_whiteboard_by_id, get_whiteboard_text_item};
-use crate::db::models::whiteboard::{InputGetWhiteboardScribble, ReadGetWhiteboardScribble, InputGetWhiteboardUpload, ReadGetWhiteboardUpload, InputGetWhiteboardTextItem, ReadGetWhiteboardTextItem};
+use crate::db::whiteboard_data::{get_whiteboard_scribbles, get_whiteboard_upload, get_whiteboard_by_id, get_whiteboard_text_item, get_whiteboard_bookmark};
+use crate::db::models::whiteboard::{InputGetWhiteboardScribble, ReadGetWhiteboardScribble, InputGetWhiteboardUpload, ReadGetWhiteboardUpload, InputGetWhiteboardTextItem, ReadGetWhiteboardTextItem, InputGetWhiteboardBookmark, ReadGetWhiteboardBookmark};
 use crate::db::websocket::websocket_types::DrawPoint;
 
 #[derive(Serialize, Deserialize)]
@@ -54,6 +54,15 @@ pub struct ResponseGetWhiteboardTextItem{
     pub offset_dx: f64,
     pub offset_dy: f64,
     pub rotation: f64,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct ResponseGetWhiteboardBookmark{
+    pub id: Uuid,
+    pub name: String,
+    pub offset_dx: f64,
+    pub offset_dy: f64,
+    pub scale: f64,
 }
 
 #[post("/scribble/get")]
@@ -138,6 +147,30 @@ pub async fn text_item_get(auth: AuthorizationService, textitem: web::Json<Input
     }
 }
 
+#[post("/bookmark/get")]
+pub async fn bookmark_get(auth: AuthorizationService, bookmark: web::Json<InputGetWhiteboardBookmark>, session: web::Data<Arc<Session>>) -> impl Responder {
+    let mut rows_vec: Vec<ResponseGetWhiteboardBookmark> = Vec::new();
+    if check_permission(bookmark.whiteboard, bookmark.permission_id, &session).await {
+        if let Some(rows) = get_whiteboard_bookmark(&session, bookmark.0).await {
+            for row in rows.into_typed::<ReadGetWhiteboardBookmark>() {
+                let unwraped_row = row.unwrap();
+                rows_vec.push(ResponseGetWhiteboardBookmark{
+                    id: unwraped_row.id,
+                    name: unwraped_row.name,
+                    offset_dx: unwraped_row.offset_dx,
+                    offset_dy: unwraped_row.offset_dy,
+                    scale: unwraped_row.scale
+                });
+            }
+            HttpResponse::Ok().json(rows_vec)
+        } else {
+            HttpResponse::Ok().json(rows_vec)
+        }
+    } else {
+        HttpResponse::Forbidden().body("Wrong Permission")
+    }
+}
+
 pub async fn check_permission(whiteboard: Uuid, permission_id: Uuid, session: &Arc<Session>) -> bool {
     let mut auth = false;
     if let Some(rows) = get_whiteboard_by_id(&session, whiteboard).await {
@@ -156,4 +189,5 @@ pub fn init_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(scribbles_get);
     cfg.service(upload_get);
     cfg.service(text_item_get);
+    cfg.service(bookmark_get);
 }

@@ -2,13 +2,14 @@ use actix::prelude::{Actor, Context, Handler, Recipient};
 use std::collections::{HashMap, HashSet};
 use uuid::Uuid;
 use crate::api::websocket::messages::{WsMessage, Disconnect, Connect, ClientActorMessage};
-use crate::api::websocket::json_messages::{ScribbleAdd, ScribbleUpdate, ScribbleDelete, UploadAdd, UploadUpdate, UploadDelete, TextItemAdd, TextItemUpdate, TextItemDelete, UploadImageDataUpdate, UserMove, UserMoveSend};
+use crate::api::websocket::json_messages::{ScribbleAdd, ScribbleUpdate, ScribbleDelete, UploadAdd, UploadUpdate, UploadDelete, TextItemAdd, TextItemUpdate, TextItemDelete, UploadImageDataUpdate, UserMove, UserMoveSend, BookmarkAdd, BookmarkDelete, BookmarkUpdate};
 use crate::db::websocket::scribble::{scribble_add, scribble_update, scribble_delete};
 use std::sync::Arc;
 use scylla::Session;
 use tokio::task;
 use crate::db::websocket::upload::{upload_add, upload_update, upload_delete, upload_image_data_update};
 use crate::db::websocket::textitem::{text_item_add, text_item_update, text_item_delete};
+use crate::db::websocket::bookmark::{bookmark_add, bookmark_update, bookmark_delete};
 
 
 type Socket = Recipient<WsMessage>;
@@ -220,6 +221,32 @@ impl Handler<ClientActorMessage> for Lobby {
                 let mut message = String::from("user-move#");
                 message.push_str(serde_json::to_string(&user_move_send).unwrap().as_str());
                 self.send_message(message.as_str(), client)
+            });
+        }else if msg.msg.starts_with("bookmark-add#") {
+            println!("Bookkmark add");
+            // self.rooms.get(&msg.room_id).unwrap().
+            let json = msg.msg.replace("bookmark-add#", "");
+            let parsed: BookmarkAdd = serde_json::from_str(&json).expect("Cant unwrap bookmark-add json");
+            task::spawn(bookmark_add(self.database_session.clone(), parsed, msg.room_id));
+            self.rooms.get(&msg.room_id).unwrap().iter().for_each(|client| {
+                self.send_message(&msg.msg, client)
+            });
+        }else if msg.msg.starts_with("bookmark-update#") {
+            println!("Bookkmark update");
+            // self.rooms.get(&msg.room_id).unwrap().
+            let json = msg.msg.replace("bookmark-update#", "");
+            let parsed: BookmarkUpdate = serde_json::from_str(&json).expect("Cant unwrap bookmark-update json");
+            task::spawn(bookmark_update(self.database_session.clone(), parsed));
+            self.rooms.get(&msg.room_id).unwrap().iter().for_each(|client| {
+                self.send_message(&msg.msg, client)
+            });
+        }else if msg.msg.starts_with("bookmark-delete#") {
+            // self.rooms.get(&msg.room_id).unwrap().
+            let json = msg.msg.replace("bookmark-delete#", "");
+            let parsed: BookmarkDelete = serde_json::from_str(&json).expect("Cant unwrap bookmark-delete json");
+            task::spawn(bookmark_delete(self.database_session.clone(), parsed));
+            self.rooms.get(&msg.room_id).unwrap().iter().for_each(|client| {
+                self.send_message(&msg.msg, client)
             });
         }else {
             // Broadcast
