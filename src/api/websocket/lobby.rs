@@ -237,7 +237,7 @@ impl Handler<ClientActorMessage> for Lobby {
             let json = msg.msg.replace("bookmark-update#", "");
             let parsed: BookmarkUpdate = serde_json::from_str(&json).expect("Cant unwrap bookmark-update json");
             task::spawn(bookmark_update(self.database_session.clone(), parsed));
-            self.rooms.get(&msg.room_id).unwrap().iter().for_each(|client| {
+            self.rooms.get(&msg.r   oom_id).unwrap().iter().for_each(|client| {
                 self.send_message(&msg.msg, client)
             });
         }else if msg.msg.starts_with("bookmark-delete#") {
