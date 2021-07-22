@@ -3,13 +3,15 @@ version: '3'
 services:
   scylla:
     image: scylladb/scylla
-#    ports:
-#      - "9042:9042"
+    restart: unless-stopped
+    ports:
+      - "9042:9042"
     volumes:
       - scylladb:/var/lib/scylla
 
   rest_api:
     image: yonggan/fluffy_rest_api
+    restart: unless-stopped
     depends_on:
       - scylla
     environment:
