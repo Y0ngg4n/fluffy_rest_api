@@ -6,9 +6,9 @@ use std::sync::Arc;
 use scylla::frame::value::Timestamp;
 use uuid::Uuid;
 use scylla::frame::response::result::Row;
-use crate::db::models::whiteboard::{InputGetWhiteboardScribble, InputGetWhiteboardUpload, InputGetWhiteboardTextItem};
+use crate::db::models::whiteboard::{InputGetWhiteboardScribble, InputGetWhiteboardUpload, InputGetWhiteboardTextItem, InputGetWhiteboardBookmark};
 use crate::db::models::file::ReadGetWhiteboard;
-use crate::api::filemanager::{delete_all_textitems_from_whiteboard, delete_all_uploads_from_whiteboard, delete_all_scribbles_from_whiteboard};
+use crate::api::filemanager::{delete_all_textitems_from_whiteboard, delete_all_uploads_from_whiteboard, delete_all_scribbles_from_whiteboard, delete_all_bookmarks_from_whiteboard};
 
 pub async fn add_user(session_arc: &Arc<Session>, user: NewUser) -> Result<(), Box<dyn Error>> {
     let session = Arc::clone(session_arc);
@@ -68,6 +68,7 @@ pub async fn delete_user_by_id(session_arc: &Arc<Session>, id: Uuid) -> Result<(
         delete_all_scribbles_from_whiteboard(&session, InputGetWhiteboardScribble { whiteboard: unwraped_row.id, permission_id: unwraped_row.edit_id }).await;
         delete_all_uploads_from_whiteboard(&session, InputGetWhiteboardUpload { whiteboard: unwraped_row.id, permission_id: unwraped_row.edit_id }).await;
         delete_all_textitems_from_whiteboard(&session, InputGetWhiteboardTextItem { whiteboard: unwraped_row.id, permission_id: unwraped_row.edit_id }).await;
+        deleta_all_bookmarks_from_whiteboard(&session, InputGetWhiteboardBookmark { whiteboard: unwraped_row.id, permission_id: unwraped_row.edit_id }).await;
     }
 
     session
@@ -76,49 +77,44 @@ pub async fn delete_user_by_id(session_arc: &Arc<Session>, id: Uuid) -> Result<(
             (id, ),
         )
         .await?;
+
     // Options
-    session
-        .query(
-            "DELETE FROM fluffy_board.toolbar_options_pencil WHERE owner=?;",
-            (id, ),
-        )
-        .await?;
-    session
-        .query(
-            "DELETE FROM fluffy_board.toolbar_options_highlighter WHERE owner=?;",
-            (id, ),
-        )
-        .await?;
-    session
-        .query(
-            "DELETE FROM fluffy_board.toolbar_options_eraser WHERE owner=?;",
-            (id, ),
-        )
-        .await?;
-    session
-        .query(
-            "DELETE FROM fluffy_board.toolbar_options_straight_line WHERE owner=?;",
-            (id, ),
-        )
-        .await?;
-    session
-        .query(
-            "DELETE FROM fluffy_board.toolbar_options_figure WHERE owner=?;",
-            (id, ),
-        )
-        .await?;
-    session
-        .query(
-            "DELETE FROM fluffy_board.toolbar_options_background WHERE owner=?;",
-            (id, ),
-        )
-        .await?;
-    session
-        .query(
-            "DELETE FROM fluffy_board.toolbar_options_background WHERE owner=?;",
-            (id, ),
-        )
-        .await?;
+    // session
+    //     .query(
+    //         "DELETE FROM fluffy_board.toolbar_options_pencil WHERE owner=?;",
+    //         (id, ),
+    //     )
+    //     .await?;
+    // session
+    //     .query(
+    //         "DELETE FROM fluffy_board.toolbar_options_highlighter WHERE owner=?;",
+    //         (id, ),
+    //     )
+    //     .await?;
+    // session
+    //     .query(
+    //         "DELETE FROM fluffy_board.toolbar_options_eraser WHERE owner=?;",
+    //         (id, ),
+    //     )
+    //     .await?;
+    // session
+    //     .query(
+    //         "DELETE FROM fluffy_board.toolbar_options_straight_line WHERE owner=?;",
+    //         (id, ),
+    //     )
+    //     .await?;
+    // session
+    //     .query(
+    //         "DELETE FROM fluffy_board.toolbar_options_figure WHERE owner=?;",
+    //         (id, ),
+    //     )
+    //     .await?;
+    // session
+    //     .query(
+    //         "DELETE FROM fluffy_board.toolbar_options_background WHERE owner=?;",
+    //         (id, ),
+    //     )
+    //     .await?;
     // Account
     session
         .query(

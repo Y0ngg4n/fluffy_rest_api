@@ -18,9 +18,10 @@ use crate::db::ext_filemanager::{get_ext_whiteboard, delete_ext_whiteboard};
 use crate::db::websocket::scribble::{scribble_delete};
 use crate::db::websocket::upload::{upload_delete};
 use crate::db::websocket::textitem::{text_item_delete};
-use crate::db::whiteboard_data::{get_whiteboard_scribbles, get_whiteboard_upload, get_whiteboard_text_item};
-use crate::db::models::whiteboard::{ReadGetWhiteboardScribble, InputGetWhiteboardScribble, InputGetWhiteboardUpload, ReadGetWhiteboardUpload, InputGetWhiteboardTextItem, ReadGetWhiteboardTextItem};
-use crate::api::websocket::json_messages::{ScribbleDelete, UploadDelete, TextItemDelete};
+use crate::db::whiteboard_data::{get_whiteboard_scribbles, get_whiteboard_upload, get_whiteboard_text_item, get_whiteboard_bookmark};
+use crate::db::models::whiteboard::{ReadGetWhiteboardScribble, InputGetWhiteboardScribble, InputGetWhiteboardUpload, ReadGetWhiteboardUpload, InputGetWhiteboardTextItem, ReadGetWhiteboardTextItem, InputGetWhiteboardBookmark, ReadGetWhiteboardBookmark};
+use crate::api::websocket::json_messages::{ScribbleDelete, UploadDelete, TextItemDelete, BookmarkDelete};
+use crate::db::websocket::bookmark::bookmark_delete;
 
 #[derive(Serialize, Deserialize)]
 struct GetDirectoryResponse {
@@ -268,6 +269,7 @@ async fn delete_sub_directory(session: &Arc<Session>, new_get_delete_directory: 
             delete_all_scribbles_from_whiteboard(&session, InputGetWhiteboardScribble{ whiteboard: unwraped_row.id, permission_id: unwraped_row.id}).await;
             delete_all_uploads_from_whiteboard(&session, InputGetWhiteboardUpload { whiteboard: unwraped_row.id, permission_id: unwraped_row.id}).await;
             delete_all_textitems_from_whiteboard(&session, InputGetWhiteboardTextItem{ whiteboard: unwraped_row.id, permission_id: unwraped_row.id}).await;
+            delete_all_bookmarks_from_whiteboard(&session, InputGetWhiteboardBookmark{whiteboard: unwraped_row.id, permission_id: unwraped_row.id}).await;
         }
     }
 }
@@ -295,6 +297,15 @@ pub async fn delete_all_textitems_from_whiteboard(session: &Arc<Session>, whiteb
         for row in rows.into_typed::<ReadGetWhiteboardTextItem>() {
             let unwraped_row = row.unwrap();
             text_item_delete(session.clone(), TextItemDelete{uuid: unwraped_row.id}).await;
+        }
+    }
+}
+
+pub async fn delete_all_bookmarks_from_whiteboard(session: &Arc<Session>, whiteboard: InputGetWhiteboardBookmark){
+    if let Some(rows) = get_whiteboard_bookmark(&session, whiteboard).await {
+        for row in rows.into_typed::<ReadGetWhiteboardBookmark>() {
+            let unwraped_row = row.unwrap();
+            bookmark_delete(session.clone(), BookmarkDelete{uuid: unwraped_row.id}).await;
         }
     }
 }
