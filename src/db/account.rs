@@ -68,7 +68,7 @@ pub async fn delete_user_by_id(session_arc: &Arc<Session>, id: Uuid) -> Result<(
         delete_all_scribbles_from_whiteboard(&session, InputGetWhiteboardScribble { whiteboard: unwraped_row.id, permission_id: unwraped_row.edit_id }).await;
         delete_all_uploads_from_whiteboard(&session, InputGetWhiteboardUpload { whiteboard: unwraped_row.id, permission_id: unwraped_row.edit_id }).await;
         delete_all_textitems_from_whiteboard(&session, InputGetWhiteboardTextItem { whiteboard: unwraped_row.id, permission_id: unwraped_row.edit_id }).await;
-        deleta_all_bookmarks_from_whiteboard(&session, InputGetWhiteboardBookmark { whiteboard: unwraped_row.id, permission_id: unwraped_row.edit_id }).await;
+        delete_all_bookmarks_from_whiteboard(&session, InputGetWhiteboardBookmark { whiteboard: unwraped_row.id, permission_id: unwraped_row.edit_id }).await;
     }
 
     session
