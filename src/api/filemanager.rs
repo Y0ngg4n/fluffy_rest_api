@@ -272,7 +272,7 @@ async fn delete_sub_directory(session: &Arc<Session>, new_get_delete_directory: 
     }
 }
 
-async fn delete_all_scribbles_from_whiteboard(session: &Arc<Session>, whiteboard: InputGetWhiteboardScribble){
+pub async fn delete_all_scribbles_from_whiteboard(session: &Arc<Session>, whiteboard: InputGetWhiteboardScribble){
     if let Some(rows) = get_whiteboard_scribbles(&session, whiteboard).await {
         for row in rows.into_typed::<ReadGetWhiteboardScribble>() {
             let unwraped_row = row.unwrap();
@@ -281,7 +281,7 @@ async fn delete_all_scribbles_from_whiteboard(session: &Arc<Session>, whiteboard
     }
 }
 
-async fn delete_all_uploads_from_whiteboard(session: &Arc<Session>, whiteboard: InputGetWhiteboardUpload){
+pub async fn delete_all_uploads_from_whiteboard(session: &Arc<Session>, whiteboard: InputGetWhiteboardUpload){
     if let Some(rows) = get_whiteboard_upload(&session, whiteboard).await {
         for row in rows.into_typed::<ReadGetWhiteboardUpload>() {
             let unwraped_row = row.unwrap();
@@ -290,7 +290,7 @@ async fn delete_all_uploads_from_whiteboard(session: &Arc<Session>, whiteboard: 
     }
 }
 
-async fn delete_all_textitems_from_whiteboard(session: &Arc<Session>, whiteboard: InputGetWhiteboardTextItem){
+pub async fn delete_all_textitems_from_whiteboard(session: &Arc<Session>, whiteboard: InputGetWhiteboardTextItem){
     if let Some(rows) = get_whiteboard_text_item(&session, whiteboard).await {
         for row in rows.into_typed::<ReadGetWhiteboardTextItem>() {
             let unwraped_row = row.unwrap();
