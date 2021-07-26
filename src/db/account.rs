@@ -45,38 +45,38 @@ pub async fn get_user_by_id(session_arc: &Arc<Session>, id: Uuid) -> Option<Vec<
 pub async fn delete_user_by_id(session_arc: &Arc<Session>, id: Uuid) -> Result<(), Box<dyn Error>> {
     let session = Arc::clone(session_arc);
     // FileManager
-    session
-        .query(
-            "DELETE FROM fluffy_board.wb_directory WHERE owner=?;",
-            (id, ),
-        )
-        .await?;
-    session
-        .query(
-            "DELETE FROM fluffy_board.ext_whiteboard WHERE account=?;",
-            (id, ),
-        )
-        .await?;
-    let whiteboards = session
-        .query(
-            "SELECT FROM fluffy_board.whiteboard WHERE owner=?;",
-            (id, ),
-        )
-        .await?.rows;
-    for row in whiteboards.unwrap().into_typed::<ReadGetWhiteboard>() {
-        let unwraped_row: ReadGetWhiteboard = row.unwrap();
-        delete_all_scribbles_from_whiteboard(&session, InputGetWhiteboardScribble { whiteboard: unwraped_row.id, permission_id: unwraped_row.edit_id }).await;
-        delete_all_uploads_from_whiteboard(&session, InputGetWhiteboardUpload { whiteboard: unwraped_row.id, permission_id: unwraped_row.edit_id }).await;
-        delete_all_textitems_from_whiteboard(&session, InputGetWhiteboardTextItem { whiteboard: unwraped_row.id, permission_id: unwraped_row.edit_id }).await;
-        delete_all_bookmarks_from_whiteboard(&session, InputGetWhiteboardBookmark { whiteboard: unwraped_row.id, permission_id: unwraped_row.edit_id }).await;
-    }
-
-    session
-        .query(
-            "DELETE FROM fluffy_board.whiteboard WHERE owner=?;",
-            (id, ),
-        )
-        .await?;
+    // session
+    //     .query(
+    //         "DELETE FROM fluffy_board.wb_directory WHERE owner=?;",
+    //         (id, ),
+    //     )
+    //     .await?;
+    // session
+    //     .query(
+    //         "DELETE FROM fluffy_board.ext_whiteboard WHERE account=?;",
+    //         (id, ),
+    //     )
+    //     .await?;
+    // let whiteboards = session
+    //     .query(
+    //         "SELECT FROM fluffy_board.whiteboard WHERE owner=?;",
+    //         (id, ),
+    //     )
+    //     .await?.rows;
+    // for row in whiteboards.unwrap().into_typed::<ReadGetWhiteboard>() {
+    //     let unwraped_row: ReadGetWhiteboard = row.unwrap();
+    //     delete_all_scribbles_from_whiteboard(&session, InputGetWhiteboardScribble { whiteboard: unwraped_row.id, permission_id: unwraped_row.edit_id }).await;
+    //     delete_all_uploads_from_whiteboard(&session, InputGetWhiteboardUpload { whiteboard: unwraped_row.id, permission_id: unwraped_row.edit_id }).await;
+    //     delete_all_textitems_from_whiteboard(&session, InputGetWhiteboardTextItem { whiteboard: unwraped_row.id, permission_id: unwraped_row.edit_id }).await;
+    //     delete_all_bookmarks_from_whiteboard(&session, InputGetWhiteboardBookmark { whiteboard: unwraped_row.id, permission_id: unwraped_row.edit_id }).await;
+    // }
+    //
+    // session
+    //     .query(
+    //         "DELETE FROM fluffy_board.whiteboard WHERE owner=?;",
+    //         (id, ),
+    //     )
+    //     .await?;
 
     // Options
     // session
