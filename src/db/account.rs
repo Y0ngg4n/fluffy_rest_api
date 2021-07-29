@@ -130,7 +130,7 @@ pub async fn update_username_by_id(session_arc: &Arc<Session>, name: String,
     let session = Arc::clone(session_arc);
     session
         .query(
-            "UPDATE fluffy_board.account SET name=? WHERE id=? AND email=?;",
+            "UPDATE fluffy_board.account SET name=? WHERE id=?;",
             (name, id, email),
         )
         .await?;

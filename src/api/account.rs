@@ -102,7 +102,7 @@ pub async fn register(user: web::Json<InputUser>, session: web::Data<Arc<Session
 #[post("/delete")]
 pub async fn delete(auth: AuthorizationService, session: web::Data<Arc<Session>>) -> impl Responder {
     let uuid = Uuid::parse_str(auth.token.claims.sub.as_str()).unwrap();
-    delete_user_by_id(&session, uuid).await.expect("Could not delete Account");
+    delete_user_by_id(&session, uuid).await.expect("Could not update Account");
     HttpResponse::Ok().body("Account deleted")
 }
 
@@ -110,7 +110,7 @@ pub async fn delete(auth: AuthorizationService, session: web::Data<Arc<Session>>
 pub async fn update_username(auth: AuthorizationService, user: web::Json<UpdateNameInput>, session: web::Data<Arc<Session>>) -> impl Responder {
     let uuid = Uuid::parse_str(auth.token.claims.sub.as_str()).unwrap();
     update_username_by_id(&session, user.name.clone(), uuid,
-                          user.email.clone()).await.expect("Could not delete Account");
+                          user.email.clone()).await.expect("Could not update Account");
     HttpResponse::Ok().body("Username updated")
 }
 
