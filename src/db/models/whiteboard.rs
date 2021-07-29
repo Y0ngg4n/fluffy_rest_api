@@ -39,7 +39,6 @@ pub struct ReadGetWhiteboardUpload {
     pub image_data: Vec<u8>,
     pub offset_dx: f64,
     pub offset_dy: f64,
-    pub rotation: f64,
     pub upload_type: i32,
     pub whiteboard: Uuid
 }
