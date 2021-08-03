@@ -19,7 +19,7 @@ pub async fn update_text_item(session_arc: &Arc<Session>, text_item: NewUpdateTe
     let session = Arc::clone(session_arc);
     session
         .query(
-            "INSERT INTO fluffy_board.toolbar_options_text_item (owner, color_presets, stroke_width, selected_color) VALUES (?, ?, ?, ?, ?);",
+            "INSERT INTO fluffy_board.toolbar_options_text_item (owner, color_presets, stroke_width, selected_color) VALUES (?, ?, ?, ?);",
             (text_item.owner, text_item.color_presets, text_item.stroke_width, text_item.selected_color),
         ).await?;
     Ok(())
