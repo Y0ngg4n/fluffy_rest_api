@@ -3,7 +3,7 @@ use scylla::Session;
 use std::error::Error;
 use scylla::frame::response::result::Row;
 use uuid::Uuid;
-use crate::db::models::toolbar_options::{NewUpdateStraightLine};
+use crate::db::models::toolbar_options::{NewUpdateTextItem};
 
 pub async fn get_straight_line(session_arc: &Arc<Session>, uuid: Uuid) -> Option<Vec<Row>>  {
     let session = Arc::clone(session_arc);
@@ -15,7 +15,7 @@ pub async fn get_straight_line(session_arc: &Arc<Session>, uuid: Uuid) -> Option
         .await.ok()?.rows
 }
 
-pub async fn update_straight_line(session_arc: &Arc<Session>, straight_line: NewUpdateStraightLine) -> Result<(), Box<dyn Error>>  {
+pub async fn update_straight_line(session_arc: &Arc<Session>, straight_line: NewUpdateTextItem) -> Result<(), Box<dyn Error>>  {
     let session = Arc::clone(session_arc);
     session
         .query(

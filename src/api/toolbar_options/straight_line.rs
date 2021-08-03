@@ -3,7 +3,7 @@ use scylla::{Session, IntoTypedRows};
 use crate::middlewares::auth::AuthorizationService;
 use uuid::Uuid;
 use actix_web::{get, post, Responder, web, HttpResponse};
-use crate::db::models::toolbar_options::{ReadGetStraightLine, InputUpdateStraightLine, NewUpdateStraightLine};
+use crate::db::models::toolbar_options::{ReadGetStraightLine, InputUpdateStraightLine, NewUpdateTextItem};
 use serde::{Deserialize, Serialize};
 use crate::db::toolbar_options::straight_line::{get_straight_line, update_straight_line};
 
@@ -38,7 +38,7 @@ pub async fn get(auth: AuthorizationService,  session: web::Data<Arc<Session>>) 
 #[post("/update")]
 pub async fn update(auth: AuthorizationService,  straight_line: web::Json<InputUpdateStraightLine>, session: web::Data<Arc<Session>>) -> impl Responder {
     let uuid = Uuid::parse_str(auth.token.claims.sub.as_str()).unwrap();
-    update_straight_line(&session, NewUpdateStraightLine{
+    update_straight_line(&session, NewUpdateTextItem {
         owner: uuid,
         color_presets: straight_line.color_presets.clone(),
         stroke_width: straight_line.stroke_width.clone(),

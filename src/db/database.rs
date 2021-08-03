@@ -190,6 +190,21 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
             &[],
         )
         .await?;
+    // TextItems
+    session
+        .query(
+            "CREATE TABLE IF NOT EXISTS fluffy_board.toolbar_options_text_item (\
+            owner UUID, \
+            color_presets List<Text>, \
+            stroke_width double, \
+            selected_color int, \
+            selected_figure int, \
+            selected_fill int, \
+            PRIMARY KEY(owner) \
+            )",
+            &[],
+        )
+        .await?;
     // Figure
     session
         .query(
