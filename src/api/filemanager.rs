@@ -1,7 +1,5 @@
-use actix_web::web::{Data, Json, Path};
-use actix_web::{web, HttpResponse, post, get, Responder};
+use actix_web::{web, HttpResponse, post, Responder};
 use serde::{Deserialize, Serialize};
-use serde_json;
 use crate::middlewares::auth::AuthorizationService;
 use std::sync::Arc;
 use scylla::{Session, IntoTypedRows};
@@ -10,8 +8,6 @@ use crate::db::models::file::{InputCreateDirectory, NewCreateDirectory, InputRen
 use crate::db::filemanager::{create_directory, rename_directory, delete_directory, create_whiteboard, rename_whiteboard, delete_whiteboard, get_directory, get_whiteboard, move_whiteboard, move_directory};
 use scylla::frame::value::Timestamp;
 use chrono::{Duration, Utc};
-use std::error::Error;
-use std::future::Future;
 use async_recursion::async_recursion;
 use crate::db::models::ext_file::{NewGetExtWhiteboard, NewDeleteExtWhiteboard, ReadGetExtWhiteboard};
 use crate::db::ext_filemanager::{get_ext_whiteboard, delete_ext_whiteboard};

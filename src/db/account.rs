@@ -1,14 +1,9 @@
-use scylla::{IntoTypedRows, Session, SessionBuilder, QueryResult};
+use scylla::{Session};
 use std::error::Error;
-use scylla::transport::errors::{NewSessionError, QueryError};
 use crate::db::models::user::NewUser;
 use std::sync::Arc;
-use scylla::frame::value::Timestamp;
 use uuid::Uuid;
 use scylla::frame::response::result::Row;
-use crate::db::models::whiteboard::{InputGetWhiteboardScribble, InputGetWhiteboardUpload, InputGetWhiteboardTextItem, InputGetWhiteboardBookmark};
-use crate::db::models::file::ReadGetWhiteboard;
-use crate::api::filemanager::{delete_all_textitems_from_whiteboard, delete_all_uploads_from_whiteboard, delete_all_scribbles_from_whiteboard, delete_all_bookmarks_from_whiteboard};
 
 pub async fn add_user(session_arc: &Arc<Session>, user: NewUser) -> Result<(), Box<dyn Error>> {
     let session = Arc::clone(session_arc);

@@ -1,11 +1,8 @@
-use scylla::{IntoTypedRows, Session, SessionBuilder, QueryResult};
+use scylla::{Session};
 use std::error::Error;
-use scylla::transport::errors::{NewSessionError, QueryError};
 use std::sync::Arc;
-use scylla::frame::value::Timestamp;
-use uuid::Uuid;
 use scylla::frame::response::result::Row;
-use crate::db::models::file::{NewCreateDirectory, InputRenameDirectory, NewRenameDirectory, InputDeleteDirectory, NewCreateWhiteboard, NewRenameWhiteboard, InputDeleteWhiteboard, NewGetDirectory, NewGetWhiteboard, NewDeleteDirectory, ReadGetWhiteboard, NewDeleteWhiteboard, NewMoveWhiteboard, NewMoveDirectory};
+use crate::db::models::file::{NewCreateDirectory, NewRenameDirectory, NewCreateWhiteboard, NewRenameWhiteboard, NewGetDirectory, NewGetWhiteboard, NewDeleteDirectory, NewDeleteWhiteboard, NewMoveWhiteboard, NewMoveDirectory};
 
 pub async fn get_directory(session_arc: &Arc<Session>, directory: NewGetDirectory) -> Option<Vec<Row>> {
     let session = Arc::clone(session_arc);

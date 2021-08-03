@@ -15,8 +15,6 @@ use bytes::Bytes;
 use actix::prelude::Stream;
 use crate::db::account::{get_user_by_id};
 use crate::db::models::user::ReadUser;
-use actix_http::Response;
-use actix_http::body::Body;
 
 // Code from https://github.com/antholeole/actix-sockets.git
 // Thank you soooo much :)

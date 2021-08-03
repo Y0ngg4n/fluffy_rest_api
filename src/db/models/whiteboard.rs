@@ -1,7 +1,6 @@
 use uuid::Uuid;
 use crate::db::websocket::websocket_types::DrawPoint;
 use serde::{Deserialize, Serialize};
-use scylla::IntoTypedRows;
 use scylla::macros::FromRow;
 use scylla::frame::response::cql_to_rust::FromRow;
 

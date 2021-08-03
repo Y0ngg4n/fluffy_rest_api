@@ -1,10 +1,6 @@
 use std::sync::Arc;
 use scylla::Session;
-use crate::db::models::user::NewUser;
-use std::error::Error;
-use scylla::frame::response::result::Row;
 use uuid::Uuid;
-use crate::db::models::toolbar_options::NewUpdatePencil;
 use crate::api::websocket::json_messages::{BookmarkAdd, BookmarkUpdate, BookmarkDelete};
 
 pub async fn bookmark_add(session: Arc<Session>, bookmark: BookmarkAdd, whiteboard: Uuid) {

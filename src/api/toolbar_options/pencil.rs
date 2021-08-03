@@ -1,10 +1,9 @@
 use std::sync::Arc;
 use scylla::{Session, IntoTypedRows};
-use crate::db::models::user::LoginUser;
 use crate::middlewares::auth::AuthorizationService;
 use uuid::Uuid;
 use crate::db::toolbar_options::pencil::{get_pencil, update_pencil};
-use actix_web::{get, post, Responder, HttpRequest, web, HttpResponse};
+use actix_web::{get, post, Responder, web, HttpResponse};
 use crate::db::models::toolbar_options::{ReadGetPencil, InputUpdatePencil, NewUpdatePencil};
 use serde::{Deserialize, Serialize};
 

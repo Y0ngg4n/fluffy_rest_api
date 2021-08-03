@@ -1,10 +1,9 @@
 use std::sync::Arc;
 use scylla::Session;
-use crate::db::models::user::NewUser;
 use std::error::Error;
 use scylla::frame::response::result::Row;
 use uuid::Uuid;
-use crate::db::models::toolbar_options::{NewUpdateHighlighter, NewUpdateEraser};
+use crate::db::models::toolbar_options::{NewUpdateEraser};
 
 pub async fn get_eraser(session_arc: &Arc<Session>, uuid: Uuid) -> Option<Vec<Row>>  {
     let session = Arc::clone(session_arc);

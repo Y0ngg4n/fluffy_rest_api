@@ -1,5 +1,3 @@
-
-use scylla::IntoTypedRows;
 use scylla::macros::{FromUserType, IntoUserType};
 use scylla::cql_to_rust::FromCqlVal;
 use serde::{Deserialize, Serialize};

@@ -1,8 +1,8 @@
 use crate::middlewares::auth::AuthorizationService;
-use actix_web::{web, Responder, get, post, HttpResponse};
+use actix_web::{web, Responder, post, HttpResponse};
 use scylla::Session;
 use std::sync::Arc;
-use crate::db::models::offline::{InputImport, InputImportScribble, InputImportTextItem, InputImportUpload};
+use crate::db::models::offline::{InputImport};
 use crate::db::offline_whiteboard::{import_scribbles, import_uploads, import_textitems};
 
 #[post("/import")]

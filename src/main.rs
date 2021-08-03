@@ -1,29 +1,15 @@
 extern crate actix_web;
 
-use std::{env, io};
+use std::{env};
 use std::error::Error;
 
-use actix_web::{App, HttpServer, middleware, web, error, HttpResponse, http};
-use futures::TryFutureExt;
+use actix_web::{App, HttpServer, middleware, web};
 use scylla::Session;
 
 use db::database;
 use std::sync::Arc;
-use actix_web::http::header;
-use actix_web::web::resource;
-use std::time::Duration;
-use std::{thread};
 
-use actix::io::SinkWrite;
 use actix::*;
-use actix_codec::Framed;
-use awc::{
-    error::WsProtocolError,
-    ws::{Codec, Frame, Message},
-    BoxedSocket, Client,
-};
-use bytes::Bytes;
-use futures::stream::{SplitSink, StreamExt};
 use crate::api::websocket::lobby::Lobby;
 use actix_cors::Cors;
 

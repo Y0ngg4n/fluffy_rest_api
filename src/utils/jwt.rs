@@ -1,6 +1,6 @@
-use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
+use jsonwebtoken::{encode, Algorithm, EncodingKey, Header};
 use chrono::Utc;
-use std::{env, io};
+use std::{env};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]

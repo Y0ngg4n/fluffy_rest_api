@@ -1,23 +1,13 @@
-use actix_web::web::{Data, Json, Path};
-use actix_web::{web, HttpResponse, post, get, Responder};
+use actix_web::{web, HttpResponse, post, Responder};
 use serde::{Deserialize, Serialize};
-use serde_json;
 use crate::middlewares::auth::AuthorizationService;
 use std::sync::Arc;
 use scylla::{Session, IntoTypedRows};
 use uuid::Uuid;
-use crate::db::models::file::{InputCreateDirectory, NewCreateDirectory, InputRenameDirectory, NewRenameDirectory, InputDeleteDirectory, NewCreateWhiteboard, InputCreateWhiteboard, InputRenameWhiteboard, NewRenameWhiteboard, InputDeleteWhiteboard, NewGetDirectory, InputGetDirectory, ReadGetDirectory, InputGetWhiteboard, NewGetWhiteboard, ReadGetWhiteboard, NewDeleteDirectory, NewDeleteWhiteboard};
-use crate::db::filemanager::{create_directory, rename_directory, delete_directory, create_whiteboard, rename_whiteboard, delete_whiteboard, get_directory, get_whiteboard};
-use scylla::frame::value::Timestamp;
-use chrono::{Duration, Utc};
-use std::error::Error;
-use std::future::Future;
-use async_recursion::async_recursion;
-use crate::db::ext_filemanager::{get_ext_whiteboard, delete_ext_whiteboard};
-use crate::api::filemanager::{parse_own_uuid, parse_dir_uuid};
 use crate::db::whiteboard_data::{get_whiteboard_scribbles, get_whiteboard_upload, get_whiteboard_by_id, get_whiteboard_text_item, get_whiteboard_bookmark};
 use crate::db::models::whiteboard::{InputGetWhiteboardScribble, ReadGetWhiteboardScribble, InputGetWhiteboardUpload, ReadGetWhiteboardUpload, InputGetWhiteboardTextItem, ReadGetWhiteboardTextItem, InputGetWhiteboardBookmark, ReadGetWhiteboardBookmark};
 use crate::db::websocket::websocket_types::DrawPoint;
+use crate::db::models::file::ReadGetWhiteboard;
 
 #[derive(Serialize, Deserialize)]
 pub struct ResponseGetWhiteboardScribble {

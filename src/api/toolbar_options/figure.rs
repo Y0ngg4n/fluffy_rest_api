@@ -1,9 +1,8 @@
 use std::sync::Arc;
 use scylla::{Session, IntoTypedRows};
-use crate::db::models::user::LoginUser;
 use crate::middlewares::auth::AuthorizationService;
 use uuid::Uuid;
-use actix_web::{get, post, Responder, HttpRequest, web, HttpResponse};
+use actix_web::{get, post, Responder, web, HttpResponse};
 use crate::db::models::toolbar_options::{ReadGetFigure, InputUpdateFigure, NewUpdateFigure};
 use serde::{Deserialize, Serialize};
 use crate::db::toolbar_options::figure::{update_figure, get_figure};

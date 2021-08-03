@@ -1,7 +1,7 @@
 use actix_web::error::ErrorUnauthorized;
 use actix_web::{dev, Error, FromRequest, HttpRequest};
 use futures::future::{err, ok, Ready};
-use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation, EncodingKey, TokenData};
+use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation, TokenData};
 use std::env;
 use crate::utils::jwt;
 use crate::utils::jwt::AccountToken;

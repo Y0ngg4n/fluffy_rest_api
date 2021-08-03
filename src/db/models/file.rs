@@ -2,7 +2,6 @@ use uuid::Uuid;
 use scylla::frame::value::Timestamp;
 use serde::{Deserialize, Serialize};
 use chrono::Duration;
-use scylla::IntoTypedRows;
 use scylla::macros::FromRow;
 use scylla::frame::response::cql_to_rust::FromRow;
 

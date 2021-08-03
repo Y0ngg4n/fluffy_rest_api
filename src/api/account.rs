@@ -1,4 +1,4 @@
-use actix_web::{get, post, Responder, HttpRequest, web, HttpResponse};
+use actix_web::{get, post, Responder, web, HttpResponse};
 use crate::db::models::user::{InputUser, NewUser, LoginUser, ReadUser, UpdateNameInput};
 use crate::db::account;
 use scylla::{Session, IntoTypedRows};
@@ -9,19 +9,12 @@ use argon2::{
 use rand_core::OsRng;
 use std::sync::Arc;
 use scylla::frame::value::Timestamp;
-use chrono::{DateTime, Duration, DurationRound};
+use chrono::{Duration};
 use chrono::prelude::*;
 use uuid::Uuid;
 use crate::utils::jwt::create_auth_jwt;
 use crate::middlewares::auth::AuthorizationService;
-use actix_web::dev::ResponseBody;
 use serde::{Deserialize, Serialize};
-use actix_web::error::{ResponseError, ErrorUnauthorized};
-use actix_web::client::HttpError;
-use actix_web::{http::StatusCode};
-use futures::future::{err, ok, Ready};
-use scylla::macros::FromRow;
-use scylla::cql_to_rust::FromRowError;
 use crate::db::account::{delete_user_by_id, update_username_by_id};
 
 #[derive(Serialize, Deserialize)]

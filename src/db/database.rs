@@ -1,6 +1,5 @@
-use scylla::{IntoTypedRows, Session, SessionBuilder, QueryResult};
+use scylla::{Session, SessionBuilder};
 use std::error::Error;
-use scylla::transport::errors::{NewSessionError, QueryError};
 use std::sync::Arc;
 use scylla::transport::Compression;
 

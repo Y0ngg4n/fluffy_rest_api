@@ -1,15 +1,10 @@
-use scylla::{IntoTypedRows, Session, SessionBuilder, QueryResult, BatchResult};
+use scylla::{Session};
 use std::error::Error;
-use scylla::transport::errors::{NewSessionError, QueryError};
 use std::sync::Arc;
-use scylla::frame::value::Timestamp;
 use uuid::Uuid;
-use scylla::frame::response::result::Row;
-use crate::db::models::file::{NewCreateDirectory, InputRenameDirectory, NewRenameDirectory, InputDeleteDirectory, NewCreateWhiteboard, NewRenameWhiteboard, InputDeleteWhiteboard, NewGetDirectory, NewGetWhiteboard, NewDeleteDirectory, ReadGetWhiteboard, NewDeleteWhiteboard};
 use scylla::batch::Batch;
-use scylla::query::Query;
 use scylla::prepared_statement::PreparedStatement;
-use crate::db::models::offline::{InputImportScribble, InputImport, InputImportUpload, InputImportTextItem};
+use crate::db::models::offline::{InputImportScribble, InputImportUpload, InputImportTextItem};
 
 pub async fn import_scribbles(session_arc: &Arc<Session>, scribbles: &Vec<InputImportScribble>, whiteboard: &Uuid) -> Result<(), Box<dyn Error>> {
     // Create a batch statement
@@ -43,16 +38,16 @@ pub async fn import_uploads(session_arc: &Arc<Session>, uploads: &Vec<InputImpor
     Ok(())
 }
 
-pub async fn import_textitems(session_arc: &Arc<Session>, textItems: &Vec<InputImportTextItem>, whiteboard: &Uuid) -> Result<(), Box<dyn Error>> {
+pub async fn import_textitems(session_arc: &Arc<Session>, text_items: &Vec<InputImportTextItem>, whiteboard: &Uuid) -> Result<(), Box<dyn Error>> {
     // Create a batch statement
     let session = Arc::clone(session_arc);
     let mut batch: Batch = Default::default();
     let mut values = Vec::new();
-    for textItem in textItems {
+    for text_item in text_items {
         // Add a simple query to the batch using its text
         let prepared: PreparedStatement = session.prepare("INSERT INTO fluffy_board.wb_textitem (id, whiteboard, stroke_width, max_width, max_height, color, content_text, offset_dx, offset_dy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)").await?;
         batch.append_statement(prepared);
-        values.push((&textItem.uuid, whiteboard, &textItem.stroke_width,&textItem.max_width, &textItem.max_height, &textItem.color, &textItem.text, &textItem.offset_dx, &textItem.offset_dy));
+        values.push((&text_item.uuid, whiteboard, &text_item.stroke_width, &text_item.max_width, &text_item.max_height, &text_item.color, &text_item.text, &text_item.offset_dx, &text_item.offset_dy));
     }
     // Run the batch, doesn't return any rows
     session.batch(&batch, &values).await?;

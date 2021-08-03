@@ -1,11 +1,7 @@
 use std::sync::Arc;
 use scylla::Session;
-use crate::db::models::user::NewUser;
-use std::error::Error;
-use scylla::frame::response::result::Row;
 use uuid::Uuid;
-use crate::db::models::toolbar_options::NewUpdatePencil;
-use crate::api::websocket::json_messages::{ScribbleAdd, ScribbleUpdate, ScribbleDelete, UploadAdd, UploadUpdate, UploadDelete, UploadImageDataUpdate};
+use crate::api::websocket::json_messages::{UploadAdd, UploadUpdate, UploadDelete, UploadImageDataUpdate};
 
 pub async fn upload_add(session: Arc<Session>, upload: UploadAdd, whiteboard: Uuid) {
     session

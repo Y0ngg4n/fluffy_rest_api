@@ -1,6 +1,5 @@
 use std::sync::Arc;
 use scylla::Session;
-use crate::db::models::user::NewUser;
 use std::error::Error;
 use scylla::frame::response::result::Row;
 use uuid::Uuid;

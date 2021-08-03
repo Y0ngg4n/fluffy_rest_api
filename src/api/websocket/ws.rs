@@ -7,8 +7,6 @@ use std::time::{Duration, Instant};
 use uuid::Uuid;
 use crate::api::websocket::lobby::Lobby;
 use crate::api::websocket::messages::{Connect, Disconnect, ClientActorMessage, WsMessage};
-use scylla::Session;
-use std::sync::Arc;
 
 
 const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(10);
