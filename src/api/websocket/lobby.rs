@@ -2,7 +2,7 @@ use actix::prelude::{Actor, Context, Handler, Recipient};
 use std::collections::{HashMap, HashSet};
 use uuid::Uuid;
 use crate::api::websocket::messages::{WsMessage, Disconnect, Connect, ClientActorMessage};
-use crate::api::websocket::json_messages::{ScribbleAdd, ScribbleUpdate, ScribbleDelete, UploadAdd, UploadUpdate, UploadDelete, TextItemAdd, TextItemUpdate, TextItemDelete, UploadImageDataUpdate, UserMove, UserMoveSend, BookmarkAdd, BookmarkDelete, BookmarkUpdate};
+use crate::api::websocket::json_messages::{ScribbleAdd, ScribbleUpdate, ScribbleDelete, UploadAdd, UploadUpdate, UploadDelete, TextItemAdd, TextItemUpdate, TextItemDelete, UploadImageDataUpdate, UserMove, UserMoveSend, BookmarkAdd, BookmarkDelete, BookmarkUpdate, UserCursorMoveSend};
 use crate::db::websocket::scribble::{scribble_add, scribble_update, scribble_delete};
 use std::sync::Arc;
 use scylla::Session;
@@ -227,7 +227,7 @@ impl Handler<ClientActorMessage> for Lobby {
             let json = msg.msg.replace("user-cursor-move#", "");
             let parsed: UserMove = serde_json::from_str(&json).expect("Cant unwrap user-cursor-move json");
             self.rooms.get(&msg.room_id).unwrap().iter().for_each(|client| if client.clone() != msg.id {
-                let user_move_send = UserMoveCursorSend{
+                let user_move_send = UserCursorMoveSend{
                     uuid: msg.user,
                     offset_dx: parsed.offset_dx,
                     offset_dy: parsed.offset_dy,
