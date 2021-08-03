@@ -222,6 +222,20 @@ impl Handler<ClientActorMessage> for Lobby {
                 message.push_str(serde_json::to_string(&user_move_send).unwrap().as_str());
                 self.send_message(message.as_str(), client)
             });
+        }else if msg.msg.starts_with("user-cursor-move#") {
+            // self.rooms.get(&msg.room_id).unwrap().
+            let json = msg.msg.replace("user-cursor-move#", "");
+            let parsed: UserMove = serde_json::from_str(&json).expect("Cant unwrap user-cursor-move json");
+            self.rooms.get(&msg.room_id).unwrap().iter().for_each(|client| if client.clone() != msg.id {
+                let user_move_send = UserMoveCursorSend{
+                    uuid: msg.user,
+                    offset_dx: parsed.offset_dx,
+                    offset_dy: parsed.offset_dy,
+                };
+                let mut message = String::from("user-cursor-move#");
+                message.push_str(serde_json::to_string(&user_move_send).unwrap().as_str());
+                self.send_message(message.as_str(), client)
+            });
         }else if msg.msg.starts_with("bookmark-add#") {
             println!("Bookkmark add");
             // self.rooms.get(&msg.room_id).unwrap().
