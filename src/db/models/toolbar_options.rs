@@ -87,7 +87,6 @@ pub struct InputUpdateStraightLine{
 pub struct ReadGetTextItem{
     pub owner: Uuid,
     pub color_presets: Vec<String>,
-    pub selected_cap: i32,
     pub selected_color: i32,
     pub stroke_width: f64,
 }
@@ -97,7 +96,6 @@ pub struct InputUpdateTextItem{
     pub color_presets: Vec<String>,
     pub stroke_width: f64,
     pub selected_color: i32,
-    pub selected_cap: i32,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -106,7 +104,6 @@ pub struct NewUpdateTextItem{
     pub color_presets: Vec<String>,
     pub stroke_width: f64,
     pub selected_color: i32,
-    pub selected_cap: i32,
 }
 
 #[derive(FromRow)]

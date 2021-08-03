@@ -198,8 +198,6 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
             color_presets List<Text>, \
             stroke_width double, \
             selected_color int, \
-            selected_figure int, \
-            selected_fill int, \
             PRIMARY KEY(owner) \
             )",
             &[],
