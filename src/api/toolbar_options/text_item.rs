@@ -12,7 +12,6 @@ struct GetResponse {
     color_presets: Vec<String>,
     stroke_width: f64,
     selected_color: i32,
-    selected_cap: i32,
 }
 
 #[get("/get")]
@@ -27,7 +26,6 @@ pub async fn get(auth: AuthorizationService,  session: web::Data<Arc<Session>>) 
                 color_presets: text_item_options.color_presets,
                 stroke_width: text_item_options.stroke_width,
                 selected_color: text_item_options.selected_color,
-                selected_cap: text_item_options.selected_cap
             })
         }
     }else{
