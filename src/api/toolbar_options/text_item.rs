@@ -3,7 +3,7 @@ use scylla::{Session, IntoTypedRows};
 use crate::middlewares::auth::AuthorizationService;
 use uuid::Uuid;
 use actix_web::{get, post, Responder, web, HttpResponse};
-use crate::db::models::toolbar_options::{ReadGetStraightLine, InputUpdateStraightLine, NewUpdateTextItem, ReadGetTextItem, InputUpdateTextItem};
+use crate::db::models::toolbar_options::{NewUpdateTextItem, ReadGetTextItem, InputUpdateTextItem};
 use serde::{Deserialize, Serialize};
 use crate::db::toolbar_options::text_item::{get_text_item, update_text_item};
 
@@ -43,7 +43,6 @@ pub async fn update(auth: AuthorizationService,  text_item: web::Json<InputUpdat
         color_presets: text_item.color_presets.clone(),
         stroke_width: text_item.stroke_width.clone(),
         selected_color: text_item.selected_color.clone(),
-        selected_cap: text_item.selected_cap.clone()
     }).await.expect("Not updated ");
     HttpResponse::Ok().body("Updated")
 }
