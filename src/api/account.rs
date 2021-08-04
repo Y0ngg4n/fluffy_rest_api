@@ -102,8 +102,7 @@ pub async fn delete(auth: AuthorizationService, session: web::Data<Arc<Session>>
 #[post("/update/username")]
 pub async fn update_username(auth: AuthorizationService, user: web::Json<UpdateNameInput>, session: web::Data<Arc<Session>>) -> impl Responder {
     let uuid = Uuid::parse_str(auth.token.claims.sub.as_str()).unwrap();
-    update_username_by_id(&session, user.name.clone(), uuid,
-                          user.email.clone()).await.expect("Could not update Account");
+    update_username_by_id(&session, user.name.clone(), uuid).await.expect("Could not update Account");
     HttpResponse::Ok().body("Username updated")
 }
 

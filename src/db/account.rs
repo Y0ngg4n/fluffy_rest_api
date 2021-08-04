@@ -121,12 +121,12 @@ pub async fn delete_user_by_id(session_arc: &Arc<Session>, id: Uuid) -> Result<(
 }
 
 pub async fn update_username_by_id(session_arc: &Arc<Session>, name: String,
-                                   id: Uuid, email: String) -> Result<(), Box<dyn Error>> {
+                                   id: Uuid) -> Result<(), Box<dyn Error>> {
     let session = Arc::clone(session_arc);
     session
         .query(
             "UPDATE fluffy_board.account SET name=? WHERE id=?;",
-            (name, id, email),
+            (name, id),
         )
         .await?;
     Ok(())
