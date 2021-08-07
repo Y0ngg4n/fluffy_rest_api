@@ -10,6 +10,7 @@ pub struct ScribbleAdd {
     pub stroke_cap: i32,
     pub color: String,
     pub points: Vec<DrawPoint>,
+    pub rotation: f64,
     pub painting_style: i32,
 }
 
@@ -20,6 +21,7 @@ pub struct ScribbleUpdate {
     pub stroke_cap: i32,
     pub color: String,
     pub points: Vec<DrawPoint>,
+    pub rotation: f64,
     pub painting_style: i32,
     pub left_extremity: f64,
     pub right_extremity: f64,
@@ -38,6 +40,8 @@ pub struct UploadAdd {
     pub upload_type: i32,
     pub offset_dx: f64,
     pub offset_dy: f64,
+    pub rotation: f64,
+    pub scale: f64,
     pub image_data: Vec<u8>,
 }
 
@@ -46,6 +50,8 @@ pub struct UploadUpdate {
     pub uuid: Uuid,
     pub offset_dx: f64,
     pub offset_dy: f64,
+    pub rotation: f64,
+    pub scale: f64
 }
 
 

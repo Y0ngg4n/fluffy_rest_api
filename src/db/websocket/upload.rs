@@ -6,16 +6,16 @@ use crate::api::websocket::json_messages::{UploadAdd, UploadUpdate, UploadDelete
 pub async fn upload_add(session: Arc<Session>, upload: UploadAdd, whiteboard: Uuid) {
     session
         .query(
-            "INSERT INTO fluffy_board.wb_upload (id, whiteboard, upload_type, offset_dx, offset_dy, image_data) VALUES (?, ?, ?, ?, ?, ?);",
-            (upload.uuid, whiteboard, upload.upload_type, upload.offset_dx, upload.offset_dy, upload.image_data)
+            "INSERT INTO fluffy_board.wb_upload (id, whiteboard, upload_type, offset_dx, offset_dy, rotation, scale, image_data) VALUES (?, ?, ?, ?, ?, ?, ?);",
+            (upload.uuid, whiteboard, upload.upload_type, upload.offset_dx, upload.offset_dy, upload.rotation, upload.scale, upload.image_data)
         ).await.expect("Could not insert scribble");
 }
 
 pub async fn upload_update(session: Arc<Session>, upload: UploadUpdate) {
     session
         .query(
-            "UPDATE fluffy_board.wb_upload SET offset_dx=?, offset_dy=? WHERE id=?",
-            (upload.offset_dx, upload.offset_dy, upload.uuid)
+            "UPDATE fluffy_board.wb_upload SET offset_dx=?, offset_dy=? rotation=? scale=? WHERE id=?",
+            (upload.offset_dx, upload.offset_dy, upload.rotation, upload.scale, upload.uuid)
         ).await.expect("Could not update upload");
 }
 

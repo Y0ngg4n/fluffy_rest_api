@@ -17,6 +17,7 @@ pub struct ResponseGetWhiteboardScribble {
     pub left_extremity: f64,
     pub painting_style: i32,
     pub points: Vec<DrawPoint>,
+    pub rotation: f64,
     pub right_extremity: f64,
     pub selected_figure_type_toolbar: i32,
     pub stroke_cap: i32,
@@ -30,6 +31,8 @@ pub struct ResponseGetWhiteboardUpload {
     pub image_data: Vec<u8>,
     pub offset_dx: f64,
     pub offset_dy: f64,
+    pub rotation: f64,
+    pub scale: f64,
     pub upload_type: i32,
 }
 
@@ -69,6 +72,7 @@ pub async fn scribbles_get(auth: AuthorizationService, whiteboard: web::Json<Inp
                     left_extremity: unwraped_row.left_extremity,
                     painting_style: unwraped_row.painting_style,
                     points: unwraped_row.points,
+                    rotation: unwraped_row.rotation,
                     right_extremity: unwraped_row.right_extremity,
                     selected_figure_type_toolbar: unwraped_row.selected_figure_type_toolbar,
                     stroke_cap: unwraped_row.stroke_cap,
@@ -97,6 +101,8 @@ pub async fn upload_get(auth: AuthorizationService, upload: web::Json<InputGetWh
                     image_data: unwraped_row.image_data,
                     offset_dx: unwraped_row.offset_dx,
                     offset_dy: unwraped_row.offset_dy,
+                    rotation: unwraped_row.rotation,
+                    scale: unwraped_row.scale,
                     upload_type: unwraped_row.upload_type,
                 });
             }

@@ -251,6 +251,7 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
             painting_style int, \
             color text, \
             points List<frozen <drawpoint>>, \
+            rotation double, \
             left_extremity double, \
             right_extremity double, \
             top_extremity double, \
@@ -275,6 +276,8 @@ pub async fn create_keyspace_and_tables(session_arc: &Arc<Session>) -> Result<()
             upload_type int, \
             offset_dx double, \
             offset_dy double, \
+            rotation double, \
+            scale double, \
             image_data blob, \
             PRIMARY KEY(id) \
             )",

@@ -18,6 +18,7 @@ pub struct ReadGetWhiteboardScribble {
     pub left_extremity: f64,
     pub painting_style: i32,
     pub points: Vec<DrawPoint>,
+    pub rotation: f64,
     pub right_extremity: f64,
     pub selected_figure_type_toolbar: i32,
     pub stroke_cap: i32,
@@ -38,6 +39,8 @@ pub struct ReadGetWhiteboardUpload {
     pub image_data: Vec<u8>,
     pub offset_dx: f64,
     pub offset_dy: f64,
+    pub rotation: f64,
+    pub scale: f64,
     pub upload_type: i32,
     pub whiteboard: Uuid
 }
