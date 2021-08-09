@@ -61,7 +61,7 @@ pub async fn directory_get(auth: AuthorizationService, directory: web::Json<Inpu
 }
 
 #[post("/directory/get-all")]
-pub async fn directory_get_all(auth: AuthorizationService, directory: web::Json<InputGetDirectory>, session: web::Data<Arc<Session>>) -> impl Responder {
+pub async fn directory_get_all(auth: AuthorizationService, session: web::Data<Arc<Session>>) -> impl Responder {
     let uuid = parse_own_uuid(auth);
     let parent_uuid = parse_dir_uuid(directory.parent.clone());
     let new_get_directory = NewGetDirectory {
