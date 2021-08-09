@@ -14,6 +14,16 @@ pub async fn get_directory(session_arc: &Arc<Session>, directory: NewGetDirector
         .await.ok()?.rows
 }
 
+pub async fn get_directory_all(session_arc: &Arc<Session>, directory: NewGetDirectory) -> Option<Vec<Row>> {
+    let session = Arc::clone(session_arc);
+    session
+        .query(
+            "SELECT * FROM fluffy_board.wb_directory WHERE owner=? ALLOW FILTERING;",
+            (directory.owner, directory.parent),
+        )
+        .await.ok()?.rows
+}
+
 pub async fn create_directory(session_arc: &Arc<Session>, directory: NewCreateDirectory) -> Result<(), Box<dyn Error>> {
     let session = Arc::clone(session_arc);
     session

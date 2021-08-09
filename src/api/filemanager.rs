@@ -5,7 +5,7 @@ use std::sync::Arc;
 use scylla::{Session, IntoTypedRows};
 use uuid::Uuid;
 use crate::db::models::file::{InputCreateDirectory, NewCreateDirectory, InputRenameDirectory, NewRenameDirectory, InputDeleteDirectory, NewCreateWhiteboard, InputCreateWhiteboard, InputRenameWhiteboard, NewRenameWhiteboard, InputDeleteWhiteboard, NewGetDirectory, InputGetDirectory, ReadGetDirectory, InputGetWhiteboard, NewGetWhiteboard, ReadGetWhiteboard, NewDeleteDirectory, NewDeleteWhiteboard, NewMoveWhiteboard, InputMoveWhiteboard, InputMoveDirectory, NewMoveDirectory};
-use crate::db::filemanager::{create_directory, rename_directory, delete_directory, create_whiteboard, rename_whiteboard, delete_whiteboard, get_directory, get_whiteboard, move_whiteboard, move_directory};
+use crate::db::filemanager::{create_directory, rename_directory, delete_directory, create_whiteboard, rename_whiteboard, delete_whiteboard, get_directory, get_whiteboard, move_whiteboard, move_directory, get_directory_all};
 use scylla::frame::value::Timestamp;
 use chrono::{Duration, Utc};
 use async_recursion::async_recursion;
@@ -44,6 +44,32 @@ pub async fn directory_get(auth: AuthorizationService, directory: web::Json<Inpu
     };
     let mut rows_vec: Vec<GetDirectoryResponse> = Vec::new();
     if let Some(rows) = get_directory(&session, new_get_directory).await {
+        for row in rows.into_typed::<ReadGetDirectory>() {
+            let unwraped_row = row.unwrap();
+            rows_vec.push(GetDirectoryResponse {
+                id: unwraped_row.id,
+                owner: unwraped_row.owner,
+                parent: unwraped_row.parent,
+                created: unwraped_row.created.num_milliseconds(),
+                filename: unwraped_row.filename,
+            });
+        }
+        HttpResponse::Ok().json(rows_vec)
+    } else {
+        HttpResponse::Ok().json(rows_vec)
+    }
+}
+
+#[post("/directory/get-all")]
+pub async fn directory_get_all(auth: AuthorizationService, directory: web::Json<InputGetDirectory>, session: web::Data<Arc<Session>>) -> impl Responder {
+    let uuid = parse_own_uuid(auth);
+    let parent_uuid = parse_dir_uuid(directory.parent.clone());
+    let new_get_directory = NewGetDirectory {
+        parent: parent_uuid,
+        owner: uuid,
+    };
+    let mut rows_vec: Vec<GetDirectoryResponse> = Vec::new();
+    if let Some(rows) = get_directory_all(&session, new_get_directory).await {
         for row in rows.into_typed::<ReadGetDirectory>() {
             let unwraped_row = row.unwrap();
             rows_vec.push(GetDirectoryResponse {
@@ -309,6 +335,7 @@ pub async fn delete_all_bookmarks_from_whiteboard(session: &Arc<Session>, whiteb
 
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(directory_get);
+    cfg.service(directory_get_all);
     cfg.service(directory_create);
     cfg.service(directory_rename);
     cfg.service(directory_move);
