@@ -4,7 +4,7 @@ use crate::middlewares::auth::AuthorizationService;
 use std::sync::Arc;
 use scylla::{Session, IntoTypedRows};
 use uuid::Uuid;
-use crate::db::models::file::{InputCreateDirectory, NewCreateDirectory, InputRenameDirectory, NewRenameDirectory, InputDeleteDirectory, NewCreateWhiteboard, InputCreateWhiteboard, InputRenameWhiteboard, NewRenameWhiteboard, InputDeleteWhiteboard, NewGetDirectory, InputGetDirectory, ReadGetDirectory, InputGetWhiteboard, NewGetWhiteboard, ReadGetWhiteboard, NewDeleteDirectory, NewDeleteWhiteboard, NewMoveWhiteboard, InputMoveWhiteboard, InputMoveDirectory, NewMoveDirectory};
+use crate::db::models::file::{InputCreateDirectory, NewCreateDirectory, InputRenameDirectory, NewRenameDirectory, InputDeleteDirectory, NewCreateWhiteboard, InputCreateWhiteboard, InputRenameWhiteboard, NewRenameWhiteboard, InputDeleteWhiteboard, NewGetDirectory, InputGetDirectory, ReadGetDirectory, InputGetWhiteboard, NewGetWhiteboard, ReadGetWhiteboard, NewDeleteDirectory, NewDeleteWhiteboard, NewMoveWhiteboard, InputMoveWhiteboard, InputMoveDirectory, NewMoveDirectory, NewGetDirectoryAll};
 use crate::db::filemanager::{create_directory, rename_directory, delete_directory, create_whiteboard, rename_whiteboard, delete_whiteboard, get_directory, get_whiteboard, move_whiteboard, move_directory, get_directory_all};
 use scylla::frame::value::Timestamp;
 use chrono::{Duration, Utc};
@@ -63,9 +63,7 @@ pub async fn directory_get(auth: AuthorizationService, directory: web::Json<Inpu
 #[post("/directory/get-all")]
 pub async fn directory_get_all(auth: AuthorizationService, session: web::Data<Arc<Session>>) -> impl Responder {
     let uuid = parse_own_uuid(auth);
-    let parent_uuid = parse_dir_uuid(directory.parent.clone());
-    let new_get_directory = NewGetDirectory {
-        parent: parent_uuid,
+    let new_get_directory = NewGetDirectoryAll {
         owner: uuid,
     };
     let mut rows_vec: Vec<GetDirectoryResponse> = Vec::new();

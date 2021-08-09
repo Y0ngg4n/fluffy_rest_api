@@ -25,6 +25,11 @@ pub struct NewGetDirectory{
     pub parent: Uuid,
 }
 
+#[derive(Clone, Copy)]
+pub struct NewGetDirectoryAll{
+    pub owner: Uuid,
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct InputCreateDirectory{
     pub parent: String,
