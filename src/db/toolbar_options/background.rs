@@ -19,8 +19,8 @@ pub async fn update_background(session_arc: &Arc<Session>, background: NewUpdate
     let session = Arc::clone(session_arc);
     session
         .query(
-            "INSERT INTO fluffy_board.toolbar_options_background (owner, stroke_width, selected_background) VALUES (?, ?, ?);",
-            (background.owner, background.stroke_width, background.selected_background),
+            "INSERT INTO fluffy_board.toolbar_options_background (owner, color_presets, stroke_width, selected_background) VALUES (?, ?, ?, ?);",
+            (background.owner, background.stroke_width, background.color_presets, background.selected_background),
         ).await?;
     Ok(())
 }

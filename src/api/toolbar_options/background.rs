@@ -37,6 +37,7 @@ pub async fn update(auth: AuthorizationService,  background: web::Json<InputUpda
     update_background(&session, NewUpdateBackground{
         owner: uuid,
         stroke_width: background.stroke_width.clone(),
+        color_presets: background.color_presets.clone(),
         selected_background: background.selected_background.clone()
     }).await.expect("Not updated ");
     HttpResponse::Ok().body("Updated")

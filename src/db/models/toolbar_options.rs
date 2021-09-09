@@ -154,12 +154,14 @@ pub struct ReadGetBackground{
 #[derive(Serialize, Deserialize)]
 pub struct InputUpdateBackground{
     pub stroke_width: f64,
+    pub color_presets: Vec<String>,
     pub selected_background: i32,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct NewUpdateBackground{
     pub owner: Uuid,
+    pub color_presets: Vec<String>,
     pub stroke_width: f64,
     pub selected_background: i32,
 }
