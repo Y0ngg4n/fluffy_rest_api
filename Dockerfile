@@ -6,7 +6,7 @@ COPY . .
 
 RUN cargo install --path .
 
-FROM gcr.io/distroless/cc-debian10
+FROM debian
 
 COPY --from=build /usr/local/cargo/bin/fluffy_rest_api /usr/local/bin/fluffy_rest_api
 
