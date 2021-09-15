@@ -11,6 +11,7 @@ use crate::db::toolbar_options::background::{get_background, update_background};
 struct GetResponse {
     stroke_width: f64,
     selected_background: i32,
+    color_presets: Vec<String>
 }
 
 #[get("/get")]
@@ -24,6 +25,7 @@ pub async fn get(auth: AuthorizationService,  session: web::Data<Arc<Session>>) 
             HttpResponse::Ok().json(GetResponse{
                 stroke_width: background_options.stroke_width,
                 selected_background: background_options.selected_background,
+                color_presets: background_options.color_presets,
             })
         }
     }else{

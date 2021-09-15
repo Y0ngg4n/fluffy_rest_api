@@ -7,6 +7,7 @@ use actix_web::{App, HttpServer, middleware, web};
 use scylla::Session;
 
 use db::database;
+use db::database_migrations;
 use std::sync::Arc;
 
 use actix::*;
@@ -30,6 +31,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let session_arc = Arc::new(session);
     database::create_keyspace_and_tables(&session_arc).await.expect("Could not create Keyspace and \
     // // Tables!");
+    database_migrations::migrate(&session_arc).await.expect("Could not migrate database");
     start_webserver(Arc::clone(&session_arc));
     Ok(())
 }

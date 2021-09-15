@@ -7,3 +7,4 @@ pub mod toolbar_options;
 pub mod websocket;
 pub mod whiteboard_data;
 pub mod offline_whiteboard;
+pub mod database_migrations;

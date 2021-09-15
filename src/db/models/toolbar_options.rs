@@ -147,6 +147,7 @@ pub struct NewUpdateFigure{
 #[derive(FromRow)]
 pub struct ReadGetBackground{
     pub owner: Uuid,
+    pub color_presets: Vec<String>,
     pub selected_background: i32,
     pub stroke_width: f64,
 }
