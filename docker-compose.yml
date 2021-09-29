@@ -12,6 +12,8 @@ services:
   rest_api:
     image: yonggan/fluffy_rest_api
     restart: unless-stopped
+    ports:
+      - "9090:9090"
     depends_on:
       - scylla
     environment:
